@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BattleEntity" format=3 uid="uid://cqqmo5x0rshey"]
+
+[ext_resource type="Script" uid="uid://b55lp73fj5gue" path="res://battle_entity/script/entity_stat.gd" id="1_fgkdc"]
+[ext_resource type="Script" uid="uid://c71mislqxf33a" path="res://battle_entity/script/battle_entity.gd" id="1_kumyg"]
+[ext_resource type="Script" uid="uid://ulm18428k4sf" path="res://battle_entity/skill/script/skill.gd" id="2_fgkdc"]
+
+[sub_resource type="Resource" id="Resource_kumyg"]
+script = ExtResource("1_fgkdc")
+metadata/_custom_type_script = "uid://b55lp73fj5gue"
+
+[resource]
+script = ExtResource("1_kumyg")
+team = 1
+base_stats = SubResource("Resource_kumyg")
+metadata/_custom_type_script = "uid://c71mislqxf33a"

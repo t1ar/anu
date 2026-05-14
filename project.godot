@@ -14,6 +14,10 @@ config/name="project-square"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+BattleManager="*uid://k4ea0m3vi0tr"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
