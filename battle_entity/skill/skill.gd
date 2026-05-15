@@ -3,6 +3,8 @@ extends Resource
 
 @export_group("Details")
 @export var skill_name: String = ""
+@export_range(0, 50) var mp_cost: int = 15
+@export_range(0, 50) var mp_regen: int = 0
 @export var scene: PackedScene
 
 @export_group("Affect(s)")

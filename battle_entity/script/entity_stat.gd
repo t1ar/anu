@@ -1,10 +1,7 @@
 class_name EntityStat
 extends Resource
 
-@export_group("Levels")
-@export var exp: int = 0
 @export var level: int = 1
-@export var exp_gain: int = 25
 
 @export_group("Base Stats (Level 1)")
 @export var health: int = 1000
@@ -22,8 +19,8 @@ extends Resource
 @export var speed_growth: float = 1.03
 @export var luck_growth: float = 1.03
 
-const first_cycle = 15000
 var AV: float
+var shield_hp: int = 0
 
 func update() -> void: #used off-battle or when starting battle
 	health   = int(health   * pow(health_growth,   level - 1))
@@ -32,4 +29,4 @@ func update() -> void: #used off-battle or when starting battle
 	defense  = int(defense  * pow(defense_growth,  level - 1))
 	speed    = int(speed    * pow(speed_growth,    level - 1))
 	luck     = int(luck     * pow(luck_growth,     level - 1))
-	AV = first_cycle / speed
+	AV = BattleManager.av_const / speed

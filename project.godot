@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 BattleManager="*uid://k4ea0m3vi0tr"
+BattleUI="*uid://1kfhkm438p6c"
 
 [physics]
 
@@ -25,3 +26,10 @@ BattleManager="*uid://k4ea0m3vi0tr"
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+
+[shader_globals]
+
+av_const={
+"type": "int",
+"value": 10000
+}
