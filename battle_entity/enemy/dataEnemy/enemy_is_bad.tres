@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://bf4pp3uktfmaf"]
+
+[ext_resource type="Script" uid="uid://cwd0afqg4ngwm" path="res://battle_entity/enemy/scriptEnemy/enemy_data.gd" id="1_if32c"]
+[ext_resource type="Script" uid="uid://bdoxvpvj5qa4k" path="res://battle_entity/scriptBattleEntity/entity_stat.gd" id="1_uuvx8"]
+[ext_resource type="PackedScene" uid="uid://dkna30rhd8vy1" path="res://battle_entity/enemy/sceneEnemy/bad_enemy.tscn" id="2_ot6k1"]
+[ext_resource type="Script" uid="uid://ulm18428k4sf" path="res://battle_entity/skill/skill.gd" id="2_rjdak"]
+[ext_resource type="Script" uid="uid://c0xmvjxlvwvrs" path="res://affect/defense.gd" id="5_5mu78"]
+[ext_resource type="Script" uid="uid://ds2rc355ivxti" path="res://affect/offense.gd" id="6_lj42k"]
+[ext_resource type="Script" uid="uid://dyd8owmj60qja" path="res://affect/support.gd" id="7_su603"]
+
+[sub_resource type="Resource" id="Resource_alxpl"]
+script = ExtResource("1_uuvx8")
+metadata/_custom_type_script = "uid://bdoxvpvj5qa4k"
+
+[sub_resource type="Resource" id="Resource_6hn3b"]
+script = ExtResource("2_rjdak")
+metadata/_custom_type_script = "uid://ulm18428k4sf"
+
+[resource]
+script = ExtResource("1_if32c")
+character_name = "aiyaiyaiya"
+backstory = "aaaa"
+scene = ExtResource("2_ot6k1")
+skill_list = Array[ExtResource("2_rjdak")]([SubResource("Resource_6hn3b")])
+base_stat = SubResource("Resource_alxpl")
+metadata/_custom_type_script = "uid://cwd0afqg4ngwm"

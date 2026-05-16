@@ -1,3 +1,4 @@
+class_name HeroData
 extends EntityData
 
 @export var current_exp: int = 0

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" format=3 uid="uid://bxyrwkhjmp0h7"]
+[gd_resource type="Resource" script_class="HeroData" format=3 uid="uid://bxyrwkhjmp0h7"]
 
 [ext_resource type="Script" uid="uid://bdoxvpvj5qa4k" path="res://battle_entity/scriptBattleEntity/entity_stat.gd" id="1_c8o5c"]
 [ext_resource type="PackedScene" uid="uid://4a6woud3eu5a" path="res://battle_entity/hero/sceneHero/hero_no_1.tscn" id="2_ht78j"]
