@@ -3,6 +3,12 @@ extends Resource
 
 @export_group("Details")
 @export var skill_name: String = ""
+
+@export_enum("Physical_Attack", "Magical_Attack", "Effect") var icon_type: String
+@export_enum("Physical", "Magic") var element: String = ""
+
+@export_range(0, 100) var success_rate: int = 100
+
 @export_range(0, 50) var mp_cost: int = 15
 @export_range(0, 50) var mp_regen: int = 0
 @export var scene: PackedScene

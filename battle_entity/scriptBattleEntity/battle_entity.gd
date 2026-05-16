@@ -9,24 +9,32 @@ func _ready() -> void:
 		return
 	data.init_stat()
 
+func _reapply_affect() -> void:
+	data.stat = data.base_stat.duplicate()
+	for affect in data.active_affects:
+		if affect.affect_type == "Tick":
+			affect.execute_affect(self)    
 
-#func _recalculate_stats() -> void:
-	#cur_stats = base_stats.duplicate()
-	#for affect in active_affects:
-		#affect.execute_affect(cur_stats)    
+func tick_affects() -> void: # 1, trigger, 0, delete
+	_reapply_affect()
+	var expired: Array[Affect] = []
+	for affect: Affect in data.active_affects:
+		affect.duration -= 1
+		if affect.duration <= 0:
+			expired.append(affect)
+	
+	for affect: Affect in expired:
+		data.active_affects.erase(affect)
+		
 
-#func tick_affects() -> void:
-	#for affect: Affect in active_affects.duplicate():
-		#affect.duration -= 1
-		#if affect.duration <= 0:
-			#active_affects.erase(affect)
-	#_recalculate_stats()
+func reset_after_death():
+	pass
 
-#func reset_after_battle(hp: bool = false, mp: bool = false) -> void: #reset all stat from buffs
-	#cur_stats = base_stats.duplicate()
-	#if hp:
-		#saved_cur_hp = cur_stats.health
-		#cur_hp = saved_cur_hp
-	#if mp:
-		#saved_cur_mp = cur_stats.mana
-		#cur_mp = saved_cur_mp
+func reset_after_battle(hp: bool = false, mp: bool = false) -> void: #reset all stat from buffs
+	data.cur_stats = data.base_stats.duplicate()
+	if hp:
+		data.saved_cur_hp = data.cur_stats.health
+		data.cur_hp = data.saved_cur_hp
+	if mp:
+		data.saved_cur_mp = data.cur_stats.mana
+		data.cur_mp = data.saved_cur_mp

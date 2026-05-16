@@ -22,6 +22,8 @@ signal cam_target_selected(entity: BattleEntity) #target camera direction, emit 
 signal cam_current_turn(hero_idx: int) #display UI for hero and set pos, 0: mid, 1: right, 2: left, -1: default (not in Hero_list)
 
 #scene signal
+signal start_battle
+signal finished_battle
 signal scene_entity_skill(caster: BattleEntity, skill: Skill)
 #signal scene_enemy_skill(caster: Enemy, skill: Skill) #display scene with Entity + skill / item, 
 #signal scene_player_skill(caster: Hero, skill: Skill) # fixed pos (can change if u want)
@@ -43,8 +45,10 @@ signal stats_updated
 func setup(Hero_group: Array[Hero], Enemy_group: Array[Enemy]) -> void:
 	Heros_list = Hero_group
 	Enemies_list = Enemy_group
-	all_entities = Hero_group + Enemy_group
-	alive_entities = all_entities.filter(func(e: BattleEntity): return e.cur_hp > 0)
+	all_entities.assign(Heros_list + Enemies_list)
+	alive_entities.assign(all_entities.filter(func(e: BattleEntity): return e.data.cur_hp > 0))
+	
+	_on_battle_ready()
 	
 	#connect inventory, its not here yet
 	
@@ -52,25 +56,57 @@ func setup(Hero_group: Array[Hero], Enemy_group: Array[Enemy]) -> void:
 	BattleUI.skill_used.connect(_on_skill_used)
 	
 	
-	BattleUI.display_UI(Hero_group, Enemy_group, turn_order_current)
+	BattleUI.display_UI(Heros_list, Enemies_list, turn_order_current)
+	
+	
+	start_battle.emit()
+	_progress()
 
 func cleanup() -> void:
+	for e in all_entities:
+		e.queue_free()
 	#disconnect inventory
 	cam_current_turn.disconnect(BattleUI.change_cam)
 	BattleUI.skill_used.disconnect(_on_skill_used)
+	
+	
+	finished_battle.emit()
+
+func _on_battle_ready():
+	#start animation, placement, etc
+	pass
 
 func _update_turn_order():
 	pass
 
-func progress() -> void:
+func _progress() -> void:
 	if finished:
 		cleanup()
-	order_entities = alive_entities.duplicate()
-	order_entities.sort_custom(func(a: BattleEntity, b: BattleEntity): return a.cur_stats.AV < b.cur_stats.AV )
+	order_entities.assign(alive_entities)
+	order_entities.sort_custom(func(a: BattleEntity, b: BattleEntity):
+		if a.data.AV != b.data.AV:
+			return a.data.AV < b.data.AV
+			
+		if a.data.team != b.data.team:
+			return a.data.team == EntityData.Teams.HERO
+			
+		if a.data.stat.luck != b.data.stat.luck:
+			return a.data.stat.luck > b.data.stat.luck
+			
+		return randi() % 2 == 0
+	)
 	cur_entity = order_entities[0]
 	cur_entity.tick_affects()
 	
-	cam_current_turn.emit(Heros_list.find(cur_entity)) #change cam
+	cam_current_turn.emit(Heros_list.find(cur_entity as Hero)) #change cam
+	
+	if cur_entity.data.cur_hp <= 0:
+		cur_entity.reset_after_death()
+		alive_entities.erase(cur_entity)
+		_update_progress()
+	
+	if cur_entity.data.sleepy:
+		_update_progress()
 	
 	if cur_entity in Heros_list:
 		BattleUI.display_action(cur_entity)
@@ -79,7 +115,14 @@ func progress() -> void:
 		pass
 	
 	
-	
+	print("ran succesfully")
+	if OS.is_debug_build():
+		return  # ← stops after one turn in debug
+	_update_progress()
+
+func _update_progress():
+	#send all important UI signal
+	_progress()
 
 
 func _on_item_used() -> void: #item: Item

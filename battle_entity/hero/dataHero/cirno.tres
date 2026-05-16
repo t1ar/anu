@@ -8,6 +8,8 @@
 
 [sub_resource type="Resource" id="Resource_ms3no"]
 script = ExtResource("1_c8o5c")
+base_health = 1106
+base_speed = 56
 metadata/_custom_type_script = "uid://bdoxvpvj5qa4k"
 
 [resource]
