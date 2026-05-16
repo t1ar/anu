@@ -1,10 +1,6 @@
-[gd_scene format=3 uid="uid://b0g60bny0gw6l"]
+[gd_scene format=3 uid="uid://bq2wj4gelpadb"]
 
-[ext_resource type="Script" uid="uid://grhh0f0paeul" path="res://TES_GameManager.gd" id="1_qebxf"]
-[ext_resource type="PackedScene" uid="uid://0an2qqvwlemu" path="res://battle_entity/hero/scene/hero1.tscn" id="2_e7yyw"]
+[ext_resource type="Script" path="res://TES_GameManager.gd" id="1_qebxf"]
 
 [node name="tes_battle_scene" type="CanvasLayer" unique_id=382741491]
 script = ExtResource("1_qebxf")
-
-[node name="hero" parent="." unique_id=715745420 instance=ExtResource("2_e7yyw")]
-position = Vector2(826, 347)
