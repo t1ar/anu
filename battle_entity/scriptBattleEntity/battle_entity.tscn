@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cms86yviupn0x"]
+
+[ext_resource type="Script" uid="uid://c71mislqxf33a" path="res://battle_entity/scriptBattleEntity/battle_entity.gd" id="1_jqfxs"]
+[ext_resource type="Script" uid="uid://qfutuvc008ks" path="res://battle_entity/scriptBattleEntity/sprite.gd" id="2_m7apk"]
+
+[node name="BattleEntity" type="Node2D" unique_id=715745420]
+script = ExtResource("1_jqfxs")
+
+[node name="sprite" type="Sprite2D" parent="." unique_id=219404425]
+script = ExtResource("2_m7apk")

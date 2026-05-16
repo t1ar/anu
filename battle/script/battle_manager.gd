@@ -1,6 +1,6 @@
 extends Node
 
-const av_const: int = 10000
+const av_const: float = 10000.0
 var Heros_list: Array[Hero]
 var Enemies_list: Array[Enemy]
 
@@ -30,9 +30,9 @@ signal scene_finished_anim
 
 #ui signal
 
-signal ui_selected_affect(affects: Array[Affect])
-signal ui_skill(skill: Skill)
-signal ui_inventory(caster: Hero)
+signal ui_selected_affect(affects: Array[Affect]) # both 
+#signal ui_skill(skill: Skill)
+#signal ui_inventory(caster: Hero)
 signal ui_escape
 signal prediction_changed
 signal stats_updated
@@ -73,7 +73,7 @@ func progress() -> void:
 	cam_current_turn.emit(Heros_list.find(cur_entity)) #change cam
 	
 	if cur_entity in Heros_list:
-		BattleUI.display_action()
+		BattleUI.display_action(cur_entity)
 	else:
 		#ai movement
 		pass
@@ -82,68 +82,72 @@ func progress() -> void:
 	
 
 
-func _on_item_used(): #item: Item
-	#_apply_effect(caster, item.affect_list)
+func _on_item_used() -> void: #item: Item
+	#get_target(item.affect_list)
 	pass
 
-func _on_skill_used(caster: BattleEntity, skill: Skill) -> void:
-	_apply_effect(caster, skill.affect_list)
+func _on_skill_used(skill: Skill) -> void:
+	#get_target(skill.affect_list)
+	pass
 
 
 func _predict_order(affect: Support):
 	pass
 
-func _apply_effect(caster: Hero, affect_list: Array[Affect]) -> void:
+func get_target(item_or_skill: Array[Affect]) -> void:
 	var targets: Array[BattleEntity]
 	var picks: Array[BattleEntity]
 	var already_picked: bool = false
 	
-	for a in affect_list:
-		targets = a.resolve_targets(caster, alive_entities)
+	for affect in item_or_skill:
+		targets = affect.resolve_targets(cur_entity, alive_entities)
 		if targets.is_empty() and not already_picked:
-			var key: String = a.get_target_key()
-			targets = await _pick_target_single(caster, key)
+			var key: String = affect.get_target_key()
+			targets = await _pick_target_single(key)
 			picks = targets
 			already_picked = true
 		else:
 			targets = picks
-		a.apply_to(targets)
+		affect.apply_to(targets)
 		
-		if a is Support:
-			_predict_order(a)
+		if affect is Support:
+			_predict_order(affect)
 	
 	stats_updated.emit()
 
+func _apply_affect(affect: Affect, target: BattleEntity) -> void:
+	pass
 
-func _pick_target_single(caster: BattleEntity, key: String) -> Array[BattleEntity]:
+
+func _pick_target_single(key: String) -> Array[BattleEntity]:
 	var picked: BattleEntity
-	if caster in Heros_list:
-		picked = await _player_pick(caster, key)
+	if cur_entity in Heros_list:
+		picked = await _player_pick(key)
 	else: 
-		picked = _ai_pick(caster, key)
+		picked = _ai_pick(key)
 	return [picked]
 
-func _player_pick(caster: BattleEntity, type: String) -> BattleEntity:
-	var picked: BattleEntity
-	if type == "SINGLE_ENEMY":
-		var Enemies = alive_entities.filter(func(e: BattleEntity): return e.team != caster.team)
+func _player_pick(key: String) -> BattleEntity:
+	var selected: BattleEntity
+	if key == "SINGLE_ENEMY":
+		var Enemies = alive_entities.filter(func(e: BattleEntity): return e.team != cur_entity.team)
 		for e in Enemies:
 			e.set_selectable(true)
-		picked = await target_selected
+		selected = await cam_target_selected
 		for e in Enemies:
 			e.set_selectable(false)
 			
-	elif type == "SINGLE_ALLY":
-		var Allies = alive_entities.filter(func(e: BattleEntity): return e.team == caster.team)
+	elif key == "SINGLE_ALLY":
+		var Allies = alive_entities.filter(func(e: BattleEntity): return e.team == cur_entity.team)
 		for e in Allies:
 			e.set_selectable(true)
-		picked = await target_selected
+		selected = await cam_target_selected
 		for e in Allies:
 			e.set_selectable(false)
 
-	return picked
+	return selected
 
-func _ai_pick(caster: BattleEntity, key: String) -> BattleEntity:
+func _ai_pick(key: String) -> BattleEntity:
 	var picked: BattleEntity
 	#ai picking stuff, idk maybe based on aggro, low hp, etc
 	

@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://4a6woud3eu5a"]
+
+[ext_resource type="PackedScene" uid="uid://cms86yviupn0x" path="res://battle_entity/scriptBattleEntity/battle_entity.tscn" id="1_71wea"]
+[ext_resource type="Script" uid="uid://b1jy0vwc5oler" path="res://battle_entity/hero/scriptHero/hero.gd" id="2_rk6j1"]
+[ext_resource type="Texture2D" uid="uid://daqs3phmjit28" path="res://battle_entity/hero/sceneHero/chibi loli ultra smuug_bg.png" id="3_sg7tr"]
+
+[node name="HeroNo1" unique_id=715745420 instance=ExtResource("1_71wea")]
+script = ExtResource("2_rk6j1")
+
+[node name="sprite" parent="." index="0" unique_id=219404425]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("3_sg7tr")

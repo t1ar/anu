@@ -9,12 +9,12 @@ func apply_to(targets: Array[BattleEntity]) -> void:
 		t.active_effects.append(duplicate())
 
 func execute_affect(target_stat: EntityStat) -> void:
-	push_error("execute() not implemented in: " + get_script().get_global_name())
+	push_error("execute_affect() not implemented in: " + get_script().get_global_name())
 
 func resolve_targets(caster: BattleEntity, all_entities: Array[BattleEntity]) -> Array[BattleEntity]:
-	push_error("execute() not implemented in: " + get_script().get_global_name())
+	push_error("resolve_targets() not implemented in: " + get_script().get_global_name())
 	return []
 
 func get_target_key() -> String:
-	push_error("execute() not implemented in: " + get_script().get_global_name())
+	push_error("get_target_key() not implemented in: " + get_script().get_global_name())
 	return ""

@@ -9,6 +9,7 @@ signal choice_item()
 func display_UI(hero_group: Array[Hero], enemy_group: Array[Enemy], order: Array[BattleEntity]):
 	_display_stats_UI(hero_group, enemy_group)
 	_display_order_UI(order)
+	#any other that is always visible, etc..
 	pass
 
 
@@ -26,9 +27,10 @@ func update_order_UI(new_order: Array[BattleEntity]):
 	pass
 
 
-func display_action():
+func display_action(caster: Hero):
 	#action selection, attack, inventory, escape
 	#if pressed action element, signal emit and callable
+	_on_display_skill(caster)
 	pass
 
 func _on_display_skill(caster: Hero):

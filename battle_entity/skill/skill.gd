@@ -8,8 +8,22 @@ extends Resource
 @export var scene: PackedScene
 
 @export_group("Affect(s)")
-@export var Offense: Array[Offense] = []
-@export var Defense: Array[Defense] = []
-@export var Support: Array[Support] = []
+@export var Offensive: Array[Offense] = []:
+	set(value):
+		Offensive = value
+		_update_affect_list()
 
-var affect_list: Array[Affect] = Offense + Defense + Support
+@export var Defensive: Array[Defense] = []:
+	set(value):
+		Defensive = value
+		_update_affect_list()
+
+@export var Supportive: Array[Support] = []:
+	set(value):
+		Supportive = value
+		_update_affect_list()
+
+var affect_list: Array[Affect] = []
+
+func _update_affect_list() -> void:
+	affect_list.assign(Offensive + Defensive + Supportive)

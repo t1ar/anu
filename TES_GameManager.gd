@@ -1,12 +1,17 @@
 extends Node
-var active_hero: Array[BattleEntity] = [load("res://battle_entity/data/hero/Entity1.tres")]
-var group_enemy: Array[BattleEntity] = [load("res://battle_entity/data/enemy/Entity2.tres")]
-#var scene, etc
 
-# Called when the node enters the scene tree for the first time.
+var tes_hero_data = preload("res://battle_entity/hero/data/hero1.tres")
+var tes_enemy_data = preload("res://battle_entity/enemy/data/enemy1.tres")
+
+var active_hero: Array[Hero] = []
+var group_enemy: Array[Enemy] = []
+
 func _ready() -> void:
-	pass # Replace with function body.
-
+	var hero_node = tes_hero_data.scene.instantiate()
+	add_child(hero_node)
+	
+	var enemy_node = tes_enemy_data.scene.instantiate()
+	add_child(enemy_node)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
