@@ -1,0 +1,158 @@
+[gd_scene format=3 uid="uid://bhmvdd008ctk0"]
+
+[ext_resource type="Script" uid="uid://tqltylkdpga2" path="res://battle/script/battle_scene.gd" id="1_nhqjx"]
+[ext_resource type="Script" uid="uid://b40jm3ddqxc4v" path="res://battle/script/battle_anim.gd" id="1_x8h6x"]
+[ext_resource type="Script" uid="uid://1kfhkm438p6c" path="res://battle/script/battle_ui.gd" id="2_x8h6x"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rkmr5"]
+albedo_color = Color(0.00474737, 0.0033606587, 0.010994203, 0.972549)
+
+[sub_resource type="Environment" id="Environment_nhqjx"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_x8h6x"]
+viewport_path = NodePath("Editor cam (del later)/EDITING CAM VIEW")
+
+[node name="battle_scene" type="Node" unique_id=1765740525]
+script = ExtResource("1_nhqjx")
+
+[node name="Hero_pos" type="Node3D" parent="." unique_id=79068391]
+
+[node name="3p-2 or 1p" type="Marker3D" parent="Hero_pos" unique_id=790285947]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.66703844, 1.1247251, 13.769538)
+gizmo_extents = 8.81
+
+[node name="2p-2" type="Marker3D" parent="Hero_pos" unique_id=1840711047]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0901122, 1.1247251, 13.769538)
+gizmo_extents = 8.81
+
+[node name="2p-1" type="Marker3D" parent="Hero_pos" unique_id=1279580453]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7301283, 1.1247251, 13.769538)
+gizmo_extents = 8.81
+
+[node name="3p-3" type="Marker3D" parent="Hero_pos" unique_id=747203833]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.001623, 1.1247251, 13.769538)
+gizmo_extents = 8.81
+
+[node name="3p-1" type="Marker3D" parent="Hero_pos" unique_id=1446675851]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9186244, 1.1247251, 13.769538)
+gizmo_extents = 8.81
+
+[node name="Enemy_pos" type="Node3D" parent="." unique_id=1076016692]
+
+[node name="3p-2 or 1p" type="Marker3D" parent="Enemy_pos" unique_id=1125111951]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31165028, 1.125, 7.912202)
+gizmo_extents = 8.81
+
+[node name="2p-1" type="Marker3D" parent="Enemy_pos" unique_id=247298575]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31165028, 1.125, 7.912202)
+gizmo_extents = 8.81
+
+[node name="2p-2" type="Marker3D" parent="Enemy_pos" unique_id=2034393131]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31165028, 1.125, 7.912202)
+gizmo_extents = 8.81
+
+[node name="3p-3" type="Marker3D" parent="Enemy_pos" unique_id=505504414]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7935772, 1.125, 7.912202)
+gizmo_extents = 8.81
+
+[node name="3p-1" type="Marker3D" parent="Enemy_pos" unique_id=160251991]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.911951, 1.125, 7.912202)
+gizmo_extents = 8.81
+
+[node name="cam_enemy" type="Marker3D" parent="." unique_id=1636879912]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0723011, 3.7121117, 18.901833)
+
+[node name="battle_anim" type="Node3D" parent="." unique_id=812352472]
+script = ExtResource("1_x8h6x")
+
+[node name="Entities" type="Node3D" parent="battle_anim" unique_id=1232378746]
+
+[node name="Skill" type="Node3D" parent="battle_anim" unique_id=1988381450]
+
+[node name="World" type="Node3D" parent="." unique_id=1991429979]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="World" unique_id=1936804122]
+transform = Transform3D(65.60181, 0, 0, 0, 1.1620498, 0, 0, 0, 68.28652, 0, 0, 0)
+size = Vector3(0.7705078, 1, 0.7368164)
+material = SubResource("StandardMaterial3D_rkmr5")
+metadata/_edit_lock_ = true
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="World" unique_id=1796604599]
+transform = Transform3D(1.134116, 0, 0, 0, 2.591828, 0, 0, 0, 0.9380829, 0.31165028, 1.125, 7.912202)
+material = SubResource("StandardMaterial3D_rkmr5")
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="World" unique_id=1810805914]
+transform = Transform3D(1.134116, 0, 0, 0, 2.591828, 0, 0, 0, 0.9380829, 5.5289254, 1.125, 7.912202)
+material = SubResource("StandardMaterial3D_rkmr5")
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="World" unique_id=1898176587]
+transform = Transform3D(1.134116, 0, 0, 0, 2.591828, 0, 0, 0, 0.9380829, -4.344154, 1.125, 7.912202)
+material = SubResource("StandardMaterial3D_rkmr5")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="World" unique_id=1037422567]
+transform = Transform3D(1.134116, 0, 0, 0, 2.591828, 0, 0, 0, 0.9380829, -3.9186244, 1.1247251, 13.769538)
+material = SubResource("StandardMaterial3D_rkmr5")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="World" unique_id=1924286119]
+transform = Transform3D(1.134116, 0, 0, 0, 2.591828, 0, 0, 0, 0.9380829, 0.66703844, 1.1247251, 13.769538)
+material = SubResource("StandardMaterial3D_rkmr5")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="World" unique_id=1670873029]
+transform = Transform3D(1.134116, 0, 0, 0, 2.591828, 0, 0, 0, 0.9380829, 6.001623, 1.1247251, 13.769538)
+material = SubResource("StandardMaterial3D_rkmr5")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World" unique_id=604515033]
+transform = Transform3D(0.095905766, -0.994563, -0.04057929, 0.033177793, -0.03755064, 0.99874383, -0.99483705, -0.09713186, 0.029396161, -0.2866857, 29.856085, 0.5180334)
+shadow_enabled = true
+
+[node name="Editor cam (del later)" type="Node3D" parent="." unique_id=1399034868]
+
+[node name="EDITING CAM VIEW" type="SubViewport" parent="Editor cam (del later)" unique_id=1177057363]
+size = Vector2i(782, 512)
+
+[node name="test_cam" type="Camera3D" parent="Editor cam (del later)/EDITING CAM VIEW" unique_id=371728965]
+transform = Transform3D(0.98203963, 0.002564147, 0.18865757, -0.015670948, 0.9975612, 0.06801528, -0.18802308, -0.06975014, 0.97968477, 3.3712533, 3.9818125, 20.440775)
+environment = SubResource("Environment_nhqjx")
+current = true
+fov = 70.0
+size = 5.432
+
+[node name="attach battle_cam here" type="Node3D" parent="." unique_id=1759312849]
+
+[node name="cam_view" type="TextureRect" parent="." unique_id=469347615]
+editor_description = "this is for editing while viewing the cam"
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -576.0
+offset_top = -326.0
+offset_right = 4437.0435
+offset_bottom = 2513.1304
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.23, 0.23)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+texture = SubResource("ViewportTexture_x8h6x")
+
+[node name="battle_ui" type="CanvasLayer" parent="." unique_id=349841171]
+script = ExtResource("2_x8h6x")
+
+[node name="SkillSelect" type="Control" parent="battle_ui" unique_id=1903570884]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 668.0
+offset_top = 397.0
+offset_right = -19.0
+offset_bottom = -23.0
+
+[node name="Skill" type="Button" parent="battle_ui/SkillSelect" unique_id=355460520]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 22.0
+offset_right = 217.0
+offset_bottom = 69.0
+text = "Skill-name"

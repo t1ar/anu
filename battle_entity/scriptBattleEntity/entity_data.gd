@@ -24,13 +24,15 @@ var team: Teams
 var stat: EntityStat #run-time update
 var AV: float
 
-#all tick affect here, add, subr, mulp each stat
+#all stat(tick) affect here, add, subr, mulp each stat
 var active_affects: Array[Affect] = []
 
-#all static affect here, turn manipulation, shield, etc
+#all special(static) affect here, turn manipulation, shield, etc
 var shield_hp: int = 0
 var damage_reduction: float = 0.0 #range 0 -> 0.9
-var sleepy: bool = false
+var sleepy: bool = false #skip turn when self.action
+var exhausted: bool = false #cant use skill that consume mp
+var unseen: bool = false #cant be single-targeted
 
 func init_stat() -> void:
 	base_stat.update_to_level()

@@ -4,7 +4,7 @@ extends Resource
 @export_group("Details")
 @export var skill_name: String = ""
 
-@export_enum("Physical_Attack", "Magical_Attack", "Effect") var icon_type: String
+@export_enum("Physical_Attack", "Magical_Attack", "Effect") var icon_type: String = "Physical_Attack"
 @export_enum("Physical", "Magic") var element: String = ""
 
 @export_range(0, 100) var success_rate: int = 100

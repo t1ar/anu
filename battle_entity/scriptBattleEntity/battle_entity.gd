@@ -1,8 +1,8 @@
 class_name BattleEntity
-extends Node
+extends Node3D
 
 var data: EntityData
-
+#add anim or state here
 func _ready() -> void:
 	if data == null:   # oi you forgot to set data before add_child()"
 		push_error("data not set before add_child() on: " + name)
@@ -10,6 +10,7 @@ func _ready() -> void:
 	data.init_stat()
 
 func _reapply_affect() -> void:
+	global_position
 	data.stat = data.base_stat.duplicate()
 	for affect in data.active_affects:
 		if affect.affect_type == "Tick":

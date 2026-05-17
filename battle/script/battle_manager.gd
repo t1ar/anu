@@ -1,4 +1,4 @@
-extends Node
+extends Node #Autoloads, check project settings global var
 
 const av_const: float = 10000.0
 var Heros_list: Array[Hero]
@@ -17,27 +17,28 @@ var target_entities: Array[BattleEntity]
 var finished: bool = false
 var exp_gain: int = 0
 
-#cam signal
-signal cam_target_selected(entity: BattleEntity) #target camera direction, emit from UI
-signal cam_current_turn(hero_idx: int) #display UI for hero and set pos, 0: mid, 1: right, 2: left, -1: default (not in Hero_list)
+signal battle_startup
+signal battle_cleanup
+signal battle_progress
 
-#scene signal
-signal start_battle
-signal finished_battle
-signal scene_entity_skill(caster: BattleEntity, skill: Skill)
-#signal scene_enemy_skill(caster: Enemy, skill: Skill) #display scene with Entity + skill / item, 
-#signal scene_player_skill(caster: Hero, skill: Skill) # fixed pos (can change if u want)
-signal scene_player_item(caster: Hero) #, item: Item)
-signal scene_finished_anim
+#cam signal
+signal cam_target_selected(entity: BattleEntity) #target camera direction, idk if needed
+signal cam_player_turn(hero: Hero) #display cam for hero and set pos based on hero.position
+signal cam_enemy_turn #display cam for enemy_turn
 
 #ui signal
+signal ui_data(heroes: Array[Hero], enemies: Array[Enemy])
+signal ui_target_selected(targets: Array[BattleEntity])
+signal ui_confirmed_action(affects: Array[Affect])
+signal ui_cur_hero(hero: Hero)
+signal ui_prediction_changed(predict: Array[BattleEntity])
+signal ui_stats_changed(all_alive_entity: Array[BattleEntity])
 
-signal ui_selected_affect(affects: Array[Affect]) # both 
-#signal ui_skill(skill: Skill)
-#signal ui_inventory(caster: Hero)
-signal ui_escape
-signal prediction_changed
-signal stats_updated
+#signal usage flow,
+#cam :	gets pos and direction
+#ui :	gets data for what to display
+#scene:	waits for ui selection
+# battle_progress -> cam -> ui await hero turn -> scene await ui -> battle_progress, til finish
 
 #calls when entering battle
 #also input player.inventory to connect
@@ -52,27 +53,22 @@ func setup(Hero_group: Array[Hero], Enemy_group: Array[Enemy]) -> void:
 	
 	#connect inventory, its not here yet
 	
-	cam_current_turn.connect(BattleUI.change_cam)
-	BattleUI.skill_used.connect(_on_skill_used)
 	
 	
-	BattleUI.display_UI(Heros_list, Enemies_list, turn_order_current)
-	
-	
-	start_battle.emit()
 	_progress()
 
 func cleanup() -> void:
 	for e in all_entities:
 		e.queue_free()
 	#disconnect inventory
-	cam_current_turn.disconnect(BattleUI.change_cam)
-	BattleUI.skill_used.disconnect(_on_skill_used)
+	cam_current_turn.disconnect(_ui.change_cam)
+	_ui.skill_used.disconnect(_on_skill_used)
 	
 	
 	finished_battle.emit()
 
 func _on_battle_ready():
+	ui_show.emit()
 	#start animation, placement, etc
 	pass
 
@@ -109,7 +105,7 @@ func _progress() -> void:
 		_update_progress()
 	
 	if cur_entity in Heros_list:
-		BattleUI.display_action(cur_entity)
+		_ui.display_action(cur_entity)
 	else:
 		#ai movement
 		pass
