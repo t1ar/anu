@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://dvemhg4saqhw6"]
+
+[ext_resource type="Script" uid="uid://qtxxqmiu74d2" path="res://src/components/trigger_zone.gd" id="1_f28p0"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ljb7b"]
+size = Vector3(2.336914, 2.3, 1.8369141)
+
+[node name="triggerzone" type="Area3D" unique_id=1802435936]
+script = ExtResource("1_f28p0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=345652525]
+shape = SubResource("BoxShape3D_ljb7b")

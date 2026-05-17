@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MapData" format=3 uid="uid://cq2o5n18kt4i6"]
+
+[ext_resource type="Script" uid="uid://ijtfyx7nhd6t" path="res://src/data/map_data.gd" id="1_02tqx"]
+
+[resource]
+script = ExtResource("1_02tqx")
+map_id = "t1ar1"
+display_name = "t1ar1"
+is_safe_zone = true
+freefield_path = "uid://c3dxq26a4r0ik"
+metadata/_custom_type_script = "uid://ijtfyx7nhd6t"

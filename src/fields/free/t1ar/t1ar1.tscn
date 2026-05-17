@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://c3dxq26a4r0ik"]
+
+[ext_resource type="PackedScene" uid="uid://dj8o2w3fgxvl4" path="res://src/entities/chars/PlayerField.tscn" id="1_80wx0"]
+[ext_resource type="PackedScene" uid="uid://dvemhg4saqhw6" path="res://src/components/trigger_zone.tscn" id="2_ki4cf"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8urn4"]
+
+[sub_resource type="Sky" id="Sky_80wx0"]
+sky_material = SubResource("ProceduralSkyMaterial_8urn4")
+
+[sub_resource type="Environment" id="Environment_ki4cf"]
+background_mode = 2
+sky = SubResource("Sky_80wx0")
+
+[node name="T1Ar1" type="Node3D" unique_id=1174451564]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=957098773]
+environment = SubResource("Environment_ki4cf")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=1018917158]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.24810791, 0)
+use_collision = true
+size = Vector3(10, 0.5, 10)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="." unique_id=1919629945]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.18601, 1.1247253, 3.5110765)
+use_collision = true
+size = Vector3(1, 2.2494507, 1)
+
+[node name="Doorthing" type="CSGCombiner3D" parent="." unique_id=1680095949]
+use_collision = true
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Doorthing" unique_id=823479007]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2404969, 1.1247253, -3.091721)
+size = Vector3(0.17871094, 2.2494507, 1)
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="Doorthing" unique_id=29703196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1465671, 1.1247253, -3.091721)
+size = Vector3(0.17871094, 2.2494507, 1)
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="Doorthing" unique_id=1755026551]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04288602, 2.3077703, -3.091721)
+size = Vector3(2.5576172, 0.13497925, 1)
+
+[node name="PlayerField" parent="." unique_id=1608460140 instance=ExtResource("1_80wx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1402812, 0, 0.5850792)
+
+[node name="tot1ar2" parent="." unique_id=1802435936 instance=ExtResource("2_ki4cf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.846)
+
+[node name="CollisionShape3D" parent="tot1ar2" index="0" unique_id=345652525]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1690795, 0)
+
+[node name="fromt1ar2" type="Marker3D" parent="tot1ar2" unique_id=2130618648]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+
+[editable path="tot1ar2"]
