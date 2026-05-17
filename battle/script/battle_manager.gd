@@ -6,13 +6,12 @@ var Enemies_list: Array[Enemy]
 
 var all_entities: Array[BattleEntity]
 var alive_entities: Array[BattleEntity]
-
-var order_entities: Array[BattleEntity]
 var cur_entity: BattleEntity
 
 var turn_order_current: Array[BattleEntity]
 var turn_order_prediction: Array[BattleEntity]
 var target_entities: Array[BattleEntity]
+
 
 var finished: bool = false
 var exp_gain: int = 0
@@ -20,10 +19,15 @@ var exp_gain: int = 0
 signal battle_startup
 signal battle_cleanup
 signal battle_progress
+signal battle_player_turn
+signal battle_enemy_turn
+signal battle_entity_died(entity: BattleEntity)
+signal battle_end
 
 #cam signal
 signal cam_target_selected(entity: BattleEntity) #target camera direction, idk if needed
 signal cam_player_turn(hero: Hero) #display cam for hero and set pos based on hero.position
+signal cam_player_select_all_allies
 signal cam_enemy_turn #display cam for enemy_turn
 
 #ui signal
@@ -40,10 +44,10 @@ signal ui_stats_changed(all_alive_entity: Array[BattleEntity])
 #scene:	waits for ui selection
 # battle_progress -> cam -> ui await hero turn -> scene await ui -> battle_progress, til finish
 
+
 #calls when entering battle
-#also input player.inventory to connect
-#and current turn to camera
 func setup(Hero_group: Array[Hero], Enemy_group: Array[Enemy]) -> void:
+	battle_end.connect(TesGameManager.end_battle)
 	Heros_list = Hero_group
 	Enemies_list = Enemy_group
 	all_entities.assign(Heros_list + Enemies_list)
@@ -57,29 +61,26 @@ func setup(Hero_group: Array[Hero], Enemy_group: Array[Enemy]) -> void:
 	
 	_progress()
 
-func cleanup() -> void:
-	for e in all_entities:
-		e.queue_free()
-	#disconnect inventory
-	cam_current_turn.disconnect(_ui.change_cam)
-	_ui.skill_used.disconnect(_on_skill_used)
+func force_end_battle() -> void: #battle end premature via menu or smthng idk
+	#dont save hero state
+	pass
+
+func _finish_battle() -> void:
+	#disconnect inventory, anything with data cleaned, etc
+	battle_cleanup.emit()
 	
-	
-	finished_battle.emit()
+	#save hero state
+	battle_end.emit()
 
 func _on_battle_ready():
-	ui_show.emit()
+	battle_startup.emit()
 	#start animation, placement, etc
 	pass
 
-func _update_turn_order():
-	pass
-
-func _progress() -> void:
-	if finished:
-		cleanup()
-	order_entities.assign(alive_entities)
-	order_entities.sort_custom(func(a: BattleEntity, b: BattleEntity):
+func _get_order(current_alive: Array[BattleEntity]) -> Array[BattleEntity]:
+	var new_order: Array[BattleEntity]
+	new_order.assign(current_alive)
+	new_order.sort_custom(func(a: BattleEntity, b: BattleEntity):
 		if a.data.AV != b.data.AV:
 			return a.data.AV < b.data.AV
 			
@@ -91,49 +92,69 @@ func _progress() -> void:
 			
 		return randi() % 2 == 0
 	)
-	cur_entity = order_entities[0]
+	
+	return new_order
+
+func _progress() -> void:
+	if finished:
+		_finish_battle()
+		
+	cur_entity = _get_order(alive_entities)[0]
+	
+	if cur_entity is Hero:
+		cam_player_turn.emit(Heros_list.find(cur_entity as Hero)) #change cam
+		ui_cur_hero.emit(cur_entity)
+	
+	if cur_entity is Enemy:
+		cam_enemy_turn
+	
 	cur_entity.tick_affects()
 	
-	cam_current_turn.emit(Heros_list.find(cur_entity as Hero)) #change cam
-	
 	if cur_entity.data.cur_hp <= 0:
-		cur_entity.reset_after_death()
+		if cur_entity is Hero:
+			cur_entity.reset_after_death(100, 20)
+		if cur_entity is Enemy:
+			cur_entity.reset_after_death()
 		alive_entities.erase(cur_entity)
 		_update_progress()
 	
 	if cur_entity.data.sleepy:
 		_update_progress()
 	
-	if cur_entity in Heros_list:
-		_ui.display_action(cur_entity)
-	else:
-		#ai movement
-		pass
+	#all extra state on entity,
 	
 	
-	print("ran succesfully")
-	if OS.is_debug_build():
-		return  # ← stops after one turn in debug
+	
+	
+	#if OS.is_debug_build():
+		#return  # ← stops after one turn in debug
+		
+	await battle_progress
 	_update_progress()
 
 func _update_progress():
 	#send all important UI signal
+	ui_stats_changed.emit(alive_entities)
 	_progress()
 
 
-func _on_item_used() -> void: #item: Item
+func get_prediction_order(affects: Array[Affect], targets: Array[BattleEntity]):
+	var new_prediction
+	
+	
+	ui_prediction_changed.emit(new_prediction)
+	pass
+	
+
+func on_item_used() -> void: #item: Item
 	#get_target(item.affect_list)
 	pass
 
-func _on_skill_used(skill: Skill) -> void:
+func on_skill_used(skill: Skill) -> void:
 	#get_target(skill.affect_list)
 	pass
 
-
-func _predict_order(affect: Support):
-	pass
-
-func get_target(item_or_skill: Array[Affect]) -> void:
+func get_target_type(item_or_skill: Array[Affect]) -> void:
 	var targets: Array[BattleEntity]
 	var picks: Array[BattleEntity]
 	var already_picked: bool = false
@@ -147,16 +168,7 @@ func get_target(item_or_skill: Array[Affect]) -> void:
 			already_picked = true
 		else:
 			targets = picks
-		affect.apply_to(targets)
-		
-		if affect is Support:
-			_predict_order(affect)
 	
-	stats_updated.emit()
-
-func _apply_affect(affect: Affect, target: BattleEntity) -> void:
-	pass
-
 
 func _pick_target_single(key: String) -> Array[BattleEntity]:
 	var picked: BattleEntity
@@ -191,3 +203,7 @@ func _ai_pick(key: String) -> BattleEntity:
 	#ai picking stuff, idk maybe based on aggro, low hp, etc
 	
 	return picked
+
+
+func _apply_affect(affect: Affect, target: BattleEntity) -> void:
+	pass

@@ -8,6 +8,7 @@
 albedo_texture = ExtResource("2_iabkh")
 
 [node name="BadassHero" unique_id=167057987 instance=ExtResource("1_tpuyt")]
+script = ExtResource("3_qd6lo")
 
 [node name="CSGBox3D" parent="." index="0" unique_id=184556529]
 material = SubResource("StandardMaterial3D_csf8g")

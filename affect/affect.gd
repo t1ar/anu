@@ -6,7 +6,7 @@ extends Resource
 @export var affect_description: String = ""
 @export_enum("Static", "Tick") var affect_type: String = "Static" 
 #Static -> shield, buffs, anything that stays
-#Tick -> DoT, HoT, anything that gets re-applied each turn
+#Tick -> DoT, HoT, anything that gets re-executed each turn
 @export_range(0, 10) var duration: int = 0  # 0 = one time use
 
 func apply_to(targets: Array[BattleEntity]) -> void:

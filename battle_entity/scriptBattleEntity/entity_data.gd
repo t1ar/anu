@@ -22,9 +22,11 @@ enum Teams { HERO, ENEMY }
 var team: Teams
 
 var stat: EntityStat #run-time update
+var stat_prediction: EntityStat
+
 var AV: float
 
-#all stat(tick) affect here, add, subr, mulp each stat
+#all stat(tick) affect here, add, subr, mulp each turn
 var active_affects: Array[Affect] = []
 
 #all special(static) affect here, turn manipulation, shield, etc

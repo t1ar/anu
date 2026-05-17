@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://tqltylkdpga2" path="res://battle/script/battle_scene.gd" id="1_nhqjx"]
 [ext_resource type="Script" uid="uid://b40jm3ddqxc4v" path="res://battle/script/battle_anim.gd" id="1_x8h6x"]
 [ext_resource type="Script" uid="uid://1kfhkm438p6c" path="res://battle/script/battle_ui.gd" id="2_x8h6x"]
+[ext_resource type="Script" uid="uid://k4bhaphq2ahc" path="res://battle/script/battle_cam.gd" id="3_fcjhi"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rkmr5"]
 albedo_color = Color(0.00474737, 0.0033606587, 0.010994203, 0.972549)
@@ -118,6 +119,7 @@ fov = 70.0
 size = 5.432
 
 [node name="attach battle_cam here" type="Node3D" parent="." unique_id=1759312849]
+script = ExtResource("3_fcjhi")
 
 [node name="cam_view" type="TextureRect" parent="." unique_id=469347615]
 editor_description = "this is for editing while viewing the cam"
@@ -142,6 +144,7 @@ script = ExtResource("2_x8h6x")
 
 [node name="SkillSelect" type="Control" parent="battle_ui" unique_id=1903570884]
 layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 668.0

@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 BattleManager="*uid://k4ea0m3vi0tr"
+TesGameManager="*uid://grhh0f0paeul"
 
 [physics]
 

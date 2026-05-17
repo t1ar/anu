@@ -1,12 +1,12 @@
-class_name BattleUI
 extends CanvasLayer
 
 #rough blue_print, actual real time UI would need signal on everything
 
-#signal choice_action(option: String) # for idk, might be useless
-signal choice_skill(option: Skill) # for prediction
-signal choice_item() # for prediction
+#universal signal, send to BattleManager, Cam, 
+signal skill_preview(caster: Hero, option: Skill, target: BattleEntity) # for prediction
+signal item_preview(caster: Hero, option, target: BattleEntity) # for prediction
 signal skill_used(caster: BattleEntity, skill: Skill) #confirmed used skill
+signal item_used()
 
 #scene signal
 signal scene_enemy_skill(caster: Enemy, skill: Skill) #display scene with keys, 
@@ -15,8 +15,7 @@ signal scene_player_item(caster: Hero) #, item: Item)
 
 
 func _ready() -> void:
-	
-	
+	#BattleManager CONNECT TO BATTLEMANAGER
 	pass
 
 
