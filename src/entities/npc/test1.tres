@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="NPCData" format=3 uid="uid://cc0fr1pcjc8ll"]
+
+[ext_resource type="Script" uid="uid://cfsrwmeh2r5yk" path="res://src/data/npc_data.gd" id="1_ud163"]
+[ext_resource type="Resource" uid="uid://b5sy4frqtjfos" path="res://src/dialouges/test1.dialogue" id="1_v7q4q"]
+[ext_resource type="PackedScene" uid="uid://yji3hqu0kvog" path="res://src/entities/chars/tempchar.tscn" id="2_v7q4q"]
+
+[resource]
+script = ExtResource("1_ud163")
+npc_id = "debugt1ar1"
+display_name = "t1ar"
+dialouge_file = ExtResource("1_v7q4q")
+model_tscn = ExtResource("2_v7q4q")
+metadata/_custom_type_script = "uid://cfsrwmeh2r5yk"

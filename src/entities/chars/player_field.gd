@@ -19,8 +19,9 @@ var max_yaw: float = 360
 var min_pitch: float = -89.9
 var max_pitch: float = 50
 
-@onready var model: Node3D = $Tempbox
+@onready var model: Node3D = $tempchar
 @onready var pcam: PhantomCamera3D = $PhantomCamera3D
+@onready var interactarea : Area3D = $tempchar/InteractArea
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -96,6 +97,15 @@ func _input(event: InputEvent) -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	if event.is_action_pressed("interact"):
+		var overlapping_areas = interactarea.get_overlapping_areas() # Use areas since we are hitting an Area3D!
+	
+		if overlapping_areas.size() > 0:
+			var hit_box = overlapping_areas[0] # This grabs the "InteractionArea" node
+			var npc = hit_box.get_parent()     # This steps up to the "NPC" root node
+			
+			if npc.has_method("interact"):
+				npc.interact()
 
 
 func _get_input_direction() -> Vector3:

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://yji3hqu0kvog"]
+
+[ext_resource type="PackedScene" uid="uid://ulvawclb26b3" path="res://src/entities/chars/gltf/tempchar/tempchar.glb" id="1_5hfc8"]
+
+[node name="tempchar" type="Node3D" unique_id=1693316177]
+
+[node name="tempchar" parent="." unique_id=1819188671 instance=ExtResource("1_5hfc8")]

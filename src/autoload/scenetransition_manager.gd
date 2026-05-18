@@ -29,8 +29,15 @@ func transition_to_field(map_data: MapData, spawn_point_name: String) -> void:
 		if old_parent:
 			old_parent.remove_child(player)
 	
+	if current_field == null or not is_instance_valid(current_field):
+		current_field = get_tree().current_scene
+	
+	# Now this check will pass perfectly!
 	if is_instance_valid(current_field):
+		print("SUCCESS: Instantly erasing old field: ", current_field.name)
 		current_field.queue_free()
+	else:
+		print("❌ CRITICAL ERROR: Could not find any active scene to delete!")
 	
 	var new_field_resource = load(map_data.freefield_path)
 	var new_field = new_field_resource.instantiate()
