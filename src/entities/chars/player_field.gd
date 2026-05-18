@@ -24,7 +24,12 @@ var max_pitch: float = 50
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	pcam.tween_on_load = false
+	pcam.set_tween_duration(0.0)
 	await get_tree().process_frame
+	pcam.teleport_position()
+	await get_tree().process_frame
+	pcam.set_tween_duration(0.15)
 	
 func _unhandled_input(event) -> void:
   # Trigger whenever the mouse moves.
@@ -111,3 +116,37 @@ func _tick_step(delta: float) -> void:
 	if _distance_accumulator >= STEP_DISTANCE:
 		_distance_accumulator = 0.0
 		#FieldManager.on_player_step()
+		
+func reset_rotation(spawn_marker: Marker3D) -> void:
+	var forward = -spawn_marker.global_basis.z
+	forward.y = 0.0
+	if forward.length() > 0.01:
+		_facing_direction = forward.normalized()
+		model.rotation.y = atan2(_facing_direction.x, _facing_direction.z)
+	pcam.set_third_person_rotation_degrees(Vector3.ZERO)
+
+
+func disable_tween() -> void:
+	pcam.tween_on_load = false
+	pcam.set_tween_duration(0.0)
+
+
+func enable_tween() -> void:
+	pcam.set_tween_duration(0.15)
+
+
+func snap_camera() -> void:
+	var facing_angle_deg = rad_to_deg(atan2(_facing_direction.x, _facing_direction.z))
+	var rot = pcam.get_third_person_rotation_degrees()
+	rot.y = facing_angle_deg + 180.0
+	rot.x = 0.0
+	pcam.set_third_person_rotation_degrees(rot)
+
+	pcam.tween_on_load = false
+	pcam.set_tween_duration(0.0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	pcam.teleport_position()
+	await get_tree().process_frame
+	pcam.set_tween_duration(0.15)

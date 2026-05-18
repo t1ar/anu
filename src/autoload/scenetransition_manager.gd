@@ -45,24 +45,20 @@ func transition_to_field(map_data: MapData, spawn_point_name: String) -> void:
 	current_field = new_field
 	
 	new_field.add_child(player)
-	
-	
-	var spawn_container = new_field.get_node_or_null("SpawnPoints")
-	if spawn_container:
-		var marker = spawn_container.get_node_or_null(spawn_point_name)
-		if marker is Marker3D:
-			player.global_position = marker.global_position
-			player.global_rotation.y = marker.global_rotation.y
-			
-	# ---> FIX #2: Force the player's camera to turn back on!
-	# (Make sure to use the exact name of your Camera3D node here)
-	var player_camera = player.get_node_or_null("Camera3D")
-	if player_camera:
-		player_camera.make_current()
-		
-	if player.has_method("snap_camera"):
-		player.snap_camera()
-	
+	await get_tree().process_frame
+
+	var marker = _find_spawn(new_field, spawn_point_name)
+	if marker:
+		player.global_position = marker.global_position
+		GameManager.player_position = marker.global_position
+		player.reset_rotation(marker)
+	else:
+		player.global_position = map_data.default_spawn
+		GameManager.player_position = map_data.default_spawn
+
+	await get_tree().process_frame
+	await player.snap_camera()
+
 	EasyTransition.uncover()
 	await get_tree().create_timer(0.5).timeout
 	is_transitioning = false
@@ -76,3 +72,26 @@ func _clear_placeholder_player(node: Node) -> void:
 			child.free() # Instantly erase it from engine memory
 		else:
 			_clear_placeholder_player(child) # Keep scanning deeper down the scene tree
+			
+func _find_spawn(field: Node, spawn_name: String) -> Marker3D:
+	# recursively find all Marker3D nodes in the new field
+	var markers = []
+	_collect_markers(field, markers)
+	
+	for marker in markers:
+		if marker.name == spawn_name:
+			return marker
+	
+	if not markers.is_empty():
+		push_warning("SceneTransitionManager: spawn '%s' not found, using first available" % spawn_name)
+		return markers[0]
+	
+	push_error("SceneTransitionManager: no spawn points in scene")
+	return null
+	
+
+func _collect_markers(node: Node, result: Array) -> void:
+	if node is Marker3D:
+		result.append(node)
+	for child in node.get_children():
+		_collect_markers(child, result)

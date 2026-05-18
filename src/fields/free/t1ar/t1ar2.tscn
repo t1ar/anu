@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dj8o2w3fgxvl4" path="res://src/entities/chars/PlayerField.tscn" id="1_lxole"]
 [ext_resource type="PackedScene" uid="uid://dvemhg4saqhw6" path="res://src/components/trigger_zone.tscn" id="2_43hv3"]
+[ext_resource type="Resource" uid="uid://cq2o5n18kt4i6" path="res://src/fields/free/t1ardebug1.tres" id="3_8xw16"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8urn4"]
 
@@ -12,10 +13,14 @@ sky_material = SubResource("ProceduralSkyMaterial_8urn4")
 background_mode = 2
 sky = SubResource("Sky_80wx0")
 
-[node name="T1Ar1" type="Node3D" unique_id=1174451564]
+[node name="T1Ar2" type="Node3D" unique_id=1174451564]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=957098773]
 environment = SubResource("Environment_ki4cf")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=1325650134]
+transform = Transform3D(0.83703184, -0.43439457, 0.33268476, 0, 0.60802734, 0.7939161, -0.54715425, -0.6645331, 0.50893825, 0, 0, 0)
+shadow_enabled = true
 
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=1018917158]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.24810791, 0)
@@ -83,16 +88,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.846)
 [node name="CollisionShape3D" parent="tot1ar3" index="0" unique_id=345652525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1690795, 0)
 
-[node name="fromt1ar3" type="Marker3D" parent="tot1ar3" unique_id=154844777]
+[node name="fromt1ar3" type="Marker3D" parent="tot1ar3" unique_id=154844777 groups=["SpawnPoints"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.65871)
 
 [node name="tot1ar1" parent="." unique_id=1216068318 instance=ExtResource("2_43hv3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.8299603)
+target_map_data = ExtResource("3_8xw16")
+target_spawn_point = "fromt1ar2"
 
 [node name="CollisionShape3D" parent="tot1ar1" index="0" unique_id=345652525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1690795, 0)
 
-[node name="fromt1ar1" type="Marker3D" parent="tot1ar1" unique_id=394818296]
+[node name="fromt1ar1" type="Marker3D" parent="tot1ar1" unique_id=394818296 groups=["SpawnPoints"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5399125)
 
 [editable path="tot1ar3"]
