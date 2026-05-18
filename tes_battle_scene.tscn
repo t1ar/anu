@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://bq2wj4gelpadb"]
+
+[ext_resource type="Script" uid="uid://grhh0f0paeul" path="res://TES_GameManager.gd" id="1_qebxf"]
+[ext_resource type="Script" uid="uid://cc8fkgceb851n" path="res://button.gd" id="3_22538"]
+[ext_resource type="Texture2D" uid="uid://b1tv7bb4d0qki" path="res://battle_entity/enemy/sceneEnemy/nom_bg.png" id="3_hh3ps"]
+
+[node name="GameManager" type="Node" unique_id=901687367]
+script = ExtResource("1_qebxf")
+
+[node name="field_scene" type="CanvasLayer" parent="." unique_id=1694868332]
+
+[node name="Button" type="Button" parent="field_scene" unique_id=2073998667]
+offset_left = 455.99997
+offset_top = 395.0
+offset_right = 678.0
+offset_bottom = 489.0
+text = "Enter Battle"
+script = ExtResource("3_22538")
+
+[node name="Sprite2D" type="Sprite2D" parent="field_scene" unique_id=1917652559]
+position = Vector2(581.00006, 141)
+scale = Vector2(0.264629, 0.2375)
+texture = ExtResource("3_hh3ps")
+
+[connection signal="pressed" from="field_scene/Button" to="." method="_on_button_pressed"]

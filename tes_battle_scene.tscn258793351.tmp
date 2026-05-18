@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bq2wj4gelpadb"]
+
+[ext_resource type="Script" uid="uid://grhh0f0paeul" path="res://TES_GameManager.gd" id="1_qebxf"]
+
+[node name="tes_battle_scene" type="CanvasLayer" unique_id=382741491]
+script = ExtResource("1_qebxf")
