@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://ctkiy7ehyb800"]
+
+[ext_resource type="Script" uid="uid://c8jfog0a2h3rv" path="res://ui/debug.gd" id="1_4ib37"]
+
+[node name="Debug" type="Control" unique_id=1281655451]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4ib37")
+
+[node name="t1ar" type="Button" parent="." unique_id=777681811]
+layout_mode = 0
+offset_left = 458.0
+offset_top = 98.0
+offset_right = 657.0
+offset_bottom = 172.0
+text = "t1ar"
+
+[node name="back" type="Button" parent="." unique_id=738099395]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 538.0
+offset_right = 143.0
+offset_bottom = 613.0
+text = "back"
+
+[connection signal="pressed" from="t1ar" to="." method="_on_t1ar_pressed"]
+[connection signal="pressed" from="back" to="." method="_on_back_pressed"]

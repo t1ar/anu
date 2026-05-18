@@ -8,22 +8,19 @@ var is_controllable: bool = true
 # ── world ──────────────────────────────────────────────
 var npcs: Array = []
 var interactables: Array = []
-var current_zone: EncounterZone = null   # set by the map's EncounterZone node
+#var current_zone: EncounterZone = null   # set by the map's EncounterZone node
 
 # ── encounter ──────────────────────────────────────────
 var step_counter: int = 0
 var encounter_rate: float = 0.15         # overridden per zone
 
 # ── signals ────────────────────────────────────────────
-signal player_moved(position: Vector3)
-signal encounter_triggered(group: Resource)
-signal chest_opened(item: Resource)
-signal event_triggered(event_id: String)
+#signal player_moved(position: Vector3)
+#signal encounter_triggered(group: Resource)
+#signal chest_opened(item: Resource)
+#signal event_triggered(event_id: String)
 
-# ── lifecycle ──────────────────────────────────────────
-func _ready() -> void:
-	GameManager.battle_ended.connect(_on_battle_ended)
-	GameManager.scene_changed.connect(_on_scene_changed)
+# ── lifecycle ─────────────────────────────────────────
 
 
 func _on_scene_changed(_path: String) -> void:
@@ -54,7 +51,7 @@ func on_map_exit() -> void:
 	lock_player()
 	npcs.clear()
 	interactables.clear()
-	current_zone = null
+	#current_zone = null
 	
 func lock_player() -> void:
 	is_controllable = false
@@ -87,68 +84,11 @@ func restore_position() -> void:
 		player_node.global_position = GameManager.player_position
 		
 # Back in FieldManager.gd
-func on_player_step() -> void:
-	if not is_controllable or current_zone == null:
-		return
-
-	GameManager.player_position = player_node.global_position
-	player_moved.emit(player_node.global_position)
-
-	step_counter += 1
-	_tick_encounter()
 
 
-func _tick_encounter() -> void:
-	if current_zone == null or current_zone.enemy_groups.is_empty():
-		return
-
-	encounter_rate = current_zone.encounter_rate
-	_roll_encounter()
-
-
-func _roll_encounter() -> void:
-	if randf() > encounter_rate:
-		return
-
-	# reset step counter on encounter
-	step_counter = 0
-
-	var group = current_zone.enemy_groups.pick_random()
-	encounter_triggered.emit(group)
-	trigger_encounter(group)
 
 
 func trigger_encounter(group: Resource) -> void:
 	lock_player()
 	on_map_exit()
 	GameManager.start_battle(group)
-
-
-func set_encounter_zone(zone) -> void:
-	current_zone = zone
-	encounter_rate = zone.encounter_rate if zone else 0.0
-	
-func start_dialog(npc_node) -> void:
-	pass
-
-
-func _on_dialog_finished() -> void:
-	unlock_player()
-
-
-func open_chest(chest_node) -> void:
-	pass
-
-
-func trigger_event(event_id: String) -> void:
-	lock_player()
-	event_triggered.emit(event_id)
-	# your cutscene/event system picks this up and calls unlock_player() when done
-
-
-func _on_battle_ended(result: Dictionary) -> void:
-	if result.result == "win" or result.result == "fled":
-		# scene_changed fires automatically from GameManager.end_battle,
-		# which calls change_scene back to the field map —
-		# on_map_ready() handles restoring position and unlocking
-		pass

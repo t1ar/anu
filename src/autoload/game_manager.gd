@@ -26,8 +26,7 @@ signal gold_changed(new_amount: int)
 signal scene_changed(path: String)
 
 # ── lifecycle ──────────────────────────────────────────
-func _ready() -> void:
-	_transition.visible = false
+
 
 func _process(delta: float) -> void:
 	if current_mode == GameMode.FIELD:

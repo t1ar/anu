@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="project-square"
+run/main_scene="uid://rwvrp3x7r2t0"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
@@ -18,10 +19,19 @@ config/icon="res://icon.svg"
 
 EasyTransition="*uid://cq0t7o8xelk4k"
 PhantomCameraManager="*uid://duq6jhf6unyis"
+GameManager="*uid://hei32o0o6ltd"
+BattleManager="*uid://c8vr6pyh0mdan"
+BgmManager="*uid://c4yijm5bueibp"
+ScenetransitionManager="*uid://mx5w0hnjw7fo"
+FieldManager="*uid://c0guy7c0giogn"
 
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/easytransition/plugin.cfg", "res://addons/phantom_camera/plugin.cfg")
+
+[global_group]
+
+Player=""
 
 [input]
 
