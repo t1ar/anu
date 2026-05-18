@@ -5,3 +5,6 @@ extends EntityData
 
 @export_storage() var exp_to_lvl_up: int = 100
 @export_storage() var is_dead: bool = false
+
+func _init() -> void:
+	team = EntityData.Teams.HERO

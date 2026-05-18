@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://dkjmbcnvhqer1"]
+
+[ext_resource type="Script" uid="uid://cc8fkgceb851n" path="res://button.gd" id="1_0o6po"]
+[ext_resource type="Texture2D" uid="uid://b1tv7bb4d0qki" path="res://battle_entity/enemy/sceneEnemy/nom_bg.png" id="2_4cjho"]
+
+[node name="field_scene" type="CanvasLayer" unique_id=1295501785]
+
+[node name="Button" type="Button" parent="." unique_id=1716044597]
+offset_left = 455.99997
+offset_top = 395.0
+offset_right = 678.0
+offset_bottom = 489.0
+text = "Enter Battle"
+script = ExtResource("1_0o6po")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1591610381]
+position = Vector2(581.00006, 141)
+scale = Vector2(0.264629, 0.2375)
+texture = ExtResource("2_4cjho")
+
+[connection signal="pressed" from="Button" to="Button" method="_on_pressed"]

@@ -3,8 +3,7 @@ extends BattleEntity
 
 
 func _ready() -> void:
-	super._ready()
-	data.team = EntityData.Teams.HERO
+	pass
 
 func level_up():
 	pass
