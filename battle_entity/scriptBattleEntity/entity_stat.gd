@@ -25,6 +25,7 @@ var defense: int
 var speed: int
 var luck: int
 
+
 func update_to_level() -> void:
 	health   = int(base_health   * pow(health_growth,   level - 1))
 	mana     = int(base_mana     * pow(mana_growth,     level - 1))

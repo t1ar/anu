@@ -17,9 +17,6 @@ var exp_gain: int = 0
 signal battle_startup
 signal battle_cleanup
 signal battle_progress
-#signal battle_player_turn
-#signal battle_enemy_turn
-#signal battle_entity_died(entity: BattleEntity)
 signal battle_end
 
 #scene signal
@@ -178,8 +175,8 @@ func _add_prediction_order(last_prediction: Array[BattleEntity], av_sim: Diction
 		
 		return randi() % 2 == 0)
 	
-	
 	var lowest_av: float = av_sim[entities[0]]
+	
 	for e in entities:
 		av_sim[e] -= lowest_av
 	#reset av_sim[0]
@@ -212,6 +209,10 @@ func _progress() -> void:
 	_update_all_order()
 	ui_prediction_changed.emit(turn_order_prediction)
 	
+	#debug
+	for e in turn_order_prediction:
+		print("Prediction for next turn: ", e.data.character_name, " HERO" if e.data.team == 0 else " ENEMY")
+	
 	cur_entity = turn_order_current[0]
 	
 	_update_cam()
@@ -222,7 +223,7 @@ func _progress() -> void:
 		_progress() #reset progress, entity doesnt exist,
 		return
 	
-	if cur_entity.data.sleepy:
+	if cur_entity.data.active_condition.sleepy:
 		_update_progress()
 		return
 	
