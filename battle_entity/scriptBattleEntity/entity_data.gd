@@ -5,11 +5,12 @@ extends Resource
 @export var character_name: String = ""
 @export var backstory: String = ""
 @export var scene: PackedScene
+@export var eyeshot: Texture2D
 
 @export_group("", "")
 @export var skill_list: Array[Skill] = []
-
-@export var base_stat: EntityStat #static reference, update level for save file
+#static reference, update level for save file
+@export var base_stat: EntityStat = EntityStat.new()
 
 @export_storage var saved_cur_hp: int
 @export_storage var saved_cur_mp: int
@@ -29,13 +30,7 @@ var AV: float
 var active_affects: Array[Affect] = []
 
 #all special(static- One-time appliant) affect here, turn manipulation, shield, etc
-var advance: float = 0.0
-var delay: float = 0.0
-var shield_hp: int = 0
-var damage_reduction: float = 0.0 #range 0 -> 0.9
-var sleepy: bool = false #skip turn when self.action
-var exhausted: bool = false #cant use skill that consume mp
-var unseen: bool = false #cant be single-targeted
+var active_condition: EntityCondition = EntityCondition.new()
 
 func init_stat() -> void:
 	base_stat.update_to_level()
@@ -53,12 +48,23 @@ func init_stat() -> void:
 
 func spawn() -> BattleEntity:
 	var node: BattleEntity = scene.instantiate()
+	init_stat()
 	node.data = self
+	var pred: EntityData = duplicate(false) #dont copy unnecesarry ahh
+	#pred.active_affects = active_affects.duplicate(true) #not needed since its always 0 at start
+	#pred.active_condition = active_condition.duplicate(true) #not needed since its always 0 at start
+	pred.cur_hp = cur_hp
+	#pred.cur_mp = cur_mp #not needed, pred only care about hp, AV when sorting
+	pred.stat = stat.duplicate()
+	pred.stat.speed = stat.speed
+	pred.stat.luck = stat.luck
+	pred.AV = AV
+	node.data_predict = pred #.duplicate(true) doesnt dupe 
 	return node
 
 func reset_av() -> float:
 	AV = 10000.0 / stat.speed
-	AV += AV * delay
-	AV -= AV * advance
+	AV += AV * active_condition.delay
+	AV -= AV * active_condition.advance
 	AV = maxf(AV, 0.0)
 	return AV

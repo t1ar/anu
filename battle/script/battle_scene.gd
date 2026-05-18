@@ -4,7 +4,7 @@ extends Node
 func _ready():
 	BattleManager.scene_spawn_hero.connect(_on_hero_spawned)
 	BattleManager.scene_spawn_enemy.connect(_on_enemy_spawned)
-	BattleManager.battle_entity_died.connect(_on_remove_enemy)
+	BattleManager.scene_enemy_died.connect(_on_remove_enemy)
 	BattleManager.battle_end.connect(_on_cleanup)
 
 func _on_hero_spawned(hero_group: Array[Hero]):

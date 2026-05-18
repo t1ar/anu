@@ -3,7 +3,7 @@ extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$"../battle_ui".idle_skill #CONNECT TO BATTLEUI, AFTER ANIM FINISH, SIGNAL BATTLEMANAGER
+	$"../battle_ui".scene_skill_idle.connect(_play_skill_loop_idle) #CONNECT TO BATTLEUI, AFTER ANIM FINISH, SIGNAL BATTLEMANAGER
 	
 	pass # Replace with function body.
 
@@ -12,7 +12,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func _play_skill_loop():
+func _play_skill_loop_idle(caster: Hero, skill: Skill):
 	pass
 
 func _play_skill_to():

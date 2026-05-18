@@ -3,8 +3,7 @@ extends BattleEntity
 
 
 func _ready() -> void:
-	super._ready()
-	data.team = EntityData.Teams.ENEMY
+	pass
 
 func ai_skill_choice() -> Skill:
 	var skill_choice: Skill

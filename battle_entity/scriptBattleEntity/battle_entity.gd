@@ -2,7 +2,7 @@ class_name BattleEntity
 extends Node3D
 
 var data: EntityData
-var data_predict: EntityData #data_predict = data.duplicate(deep)
+var data_predict: EntityData
 var selection_enabled: bool = false
 
 signal is_dead(self_: BattleEntity) #might not be needed, for animation
@@ -12,13 +12,8 @@ signal anim_finished
 
 #idk
 func _ready() -> void:
-	if data == null:   # oi you forgot to set data before add_child()"
-		push_error("data not set before add_child() on: " + name)
-		return
-	data.init_stat()
 	is_dead.connect(BattleManager._on_entity_died)
 	is_hurt.connect(BattleManager._on_entity_hurt)
-	data_predict = data.duplicate(true)
 
 func _reapply_affect() -> void:
 	for affect in data.active_affects:
