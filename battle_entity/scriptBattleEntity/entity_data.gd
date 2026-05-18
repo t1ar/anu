@@ -22,14 +22,15 @@ enum Teams { HERO, ENEMY }
 var team: Teams
 
 var stat: EntityStat #run-time update
-var stat_prediction: EntityStat
 
 var AV: float
 
 #all stat(tick) affect here, add, subr, mulp each turn
 var active_affects: Array[Affect] = []
 
-#all special(static) affect here, turn manipulation, shield, etc
+#all special(static- One-time appliant) affect here, turn manipulation, shield, etc
+var advance: float = 0.0
+var delay: float = 0.0
 var shield_hp: int = 0
 var damage_reduction: float = 0.0 #range 0 -> 0.9
 var sleepy: bool = false #skip turn when self.action
@@ -54,3 +55,10 @@ func spawn() -> BattleEntity:
 	var node: BattleEntity = scene.instantiate()
 	node.data = self
 	return node
+
+func reset_av() -> float:
+	AV = 10000.0 / stat.speed
+	AV += AV * delay
+	AV -= AV * advance
+	AV = maxf(AV, 0.0)
+	return AV

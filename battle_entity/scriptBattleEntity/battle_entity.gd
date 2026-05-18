@@ -2,28 +2,37 @@ class_name BattleEntity
 extends Node3D
 
 var data: EntityData
+var data_predict: EntityData #data_predict = data.duplicate(deep)
 var selection_enabled: bool = false
 
-signal is_dead(s: BattleEntity) #parameter might not be needed
-signal is_hurt(s: BattleEntity)
-#all other state
+signal is_dead(self_: BattleEntity) #might not be needed, for animation
+signal is_hurt(self_: BattleEntity)
+signal anim_finished
+#all other state for anim
 
-#add anim or state here
+#idk
 func _ready() -> void:
 	if data == null:   # oi you forgot to set data before add_child()"
 		push_error("data not set before add_child() on: " + name)
 		return
 	data.init_stat()
-	is_dead.connect(BattleManager.on_entity_died)
+	is_dead.connect(BattleManager._on_entity_died)
+	is_hurt.connect(BattleManager._on_entity_hurt)
+	data_predict = data.duplicate(true)
 
 func _reapply_affect() -> void:
 	for affect in data.active_affects:
 		if affect.affect_type == "Tick" and affect.duration > 0:
-			affect.execute_affect(self)
+			affect.execute_affect([self])
 
 
 func tick_affects() -> void: # 1, trigger, 0, delete
 	_reapply_affect()
+	if data.cur_hp <= 0:
+		anim_play_die()
+		await anim_finished
+		is_dead.emit(self)
+		return
 	var expired: Array[Affect] = []
 	for affect: Affect in data.active_affects:
 		affect.duration -= 1
@@ -31,14 +40,16 @@ func tick_affects() -> void: # 1, trigger, 0, delete
 			expired.append(affect)
 	
 	for affect: Affect in expired:
+		if affect.affect_type == "Static" and affect is not Offense:
+			affect.revert_affect(self)
 		data.active_affects.erase(affect)
-		
+	
 
 func reset_after_death(hp: int = 100, mp: int = 20):
 	data.cur_stats = data.base_stats.duplicate()
-	data.saved_cur_hp = hp if hp else data.base_stat.health
+	data.saved_cur_hp = hp
 	data.cur_hp = data.saved_cur_hp
-	data.saved_cur_mp = mp if mp else data.base_stat.mana
+	data.saved_cur_mp = mp
 	data.cur_mp = data.saved_cur_mp
 	
 
@@ -56,3 +67,10 @@ func _on_area_3d_input_event(camera: Node, event: InputEvent, event_position: Ve
 	if event is InputEventMouseButton and event.pressed:
 		if selection_enabled:  # only if BattleManager allows it
 			BattleManager.entity_selected.emit(self)
+
+func anim_play_hurt():
+	pass
+	
+
+func anim_play_die():
+	pass

@@ -3,7 +3,7 @@ extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$"../battle_ui".choice_skill #CONNECT TO BATTLEUI, AFTER ANIM FINISH, SIGNAL BATTLEMANAGER
+	$"../battle_ui".idle_skill #CONNECT TO BATTLEUI, AFTER ANIM FINISH, SIGNAL BATTLEMANAGER
 	
 	pass # Replace with function body.
 

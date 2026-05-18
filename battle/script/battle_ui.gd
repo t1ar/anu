@@ -1,17 +1,20 @@
 extends CanvasLayer
 
-#rough blue_print, actual real time UI would need signal on everything
+#UI act as a waiting point when Player's turn
 
-#universal signal, send to BattleManager, Cam, 
-signal skill_preview(caster: Hero, option: Skill, target: BattleEntity) # for prediction
-signal item_preview(caster: Hero, option, target: BattleEntity) # for prediction
-signal skill_used(caster: BattleEntity, skill: Skill) #confirmed used skill
-signal item_used()
+#send to BattleManager 
+signal battle_action_preview(caster: Hero, affect: Array[Affect], target: BattleEntity)
+signal battle_action_confirm(caster: Hero, affect: Array[Affect], target: BattleEntity)
 
-#scene signal
-signal scene_enemy_skill(caster: Enemy, skill: Skill) #display scene with keys, 
-signal scene_player_skill(caster: Hero, skill: Skill)
-signal scene_player_item(caster: Hero) #, item: Item)
+#send to cam
+signal cam_target_selected(entity: BattleEntity) #target camera direction, idk if needed
+signal cam_player_select_all_allies #idk if needed
+
+#send to scene/anim
+signal scene_skill_list_init(skill_list: Array[Skill]) #init all hero's skill
+signal scene_skill_idle(caster: Hero, skill: Skill) #caster for pos, for when previewing the skill
+signal scene_skill_confirm(caster: BattleEntity, targets: Array[BattleEntity])
+#signal item not here yet, WIP
 
 
 func _ready() -> void:
@@ -58,8 +61,6 @@ func _on_display_skill(caster: Hero):
 	pass
 
 
-func use_skill(caster: BattleEntity, skill: Skill) -> void:
-	skill_used.emit(caster, skill)
 
 func _on_display_item(inventory):
 	#item selection, based on inventory

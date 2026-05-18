@@ -7,7 +7,7 @@ extends Resource
 @export_enum("Physical_Attack", "Magical_Attack", "Effect") var icon_type: String = "Physical_Attack"
 @export_enum("Physical", "Magic") var element: String = ""
 @export_enum( "SELF", "SINGLE_ALLY", "ALL_ALLIES", "SINGLE_ENEMY", "ALL_ENEMIES" ) var main_target: String = "SELF"
-#actual target the skill points to for cam
+#actual target for cam and UI
 
 @export_range(0, 100) var success_rate: int = 100
 @export_range(0, 50) var mp_cost: int = 15
