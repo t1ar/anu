@@ -112,8 +112,8 @@ class HeroData(EntityData):
     def from_json(cls, data: Dict[str, Any]) -> HeroData:
         instance: HeroData = super().from_json(data)
         instance.cur_exp = data.get("cur_exp", 0)
-        instance.cur_exp = data.get("saved_hp", 0)
-        instance.cur_exp = data.get("saved_mp", 0)
+        instance.saved_hp = data.get("saved_hp", 0)
+        instance.saved_mp = data.get("saved_mp", 0)
         instance.is_dead = data.get("is_dead", False)
         instance.is_init = data.get("is_init", False)
 

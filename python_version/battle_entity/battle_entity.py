@@ -27,6 +27,7 @@ class BattleEntity(arcade.Sprite, ABC):
         self.data_predict = copy(self.data)
         self.data_predict.stat.luck = self.data.stat.luck
         self.data_predict.stat.speed = self.data.stat.speed
+        self.data_predict.active_condition = copy(self.data.active_condition)
         
 
     def _reapply_affect(self) -> None:
@@ -62,6 +63,7 @@ class BattleEntity(arcade.Sprite, ABC):
     
     def reset_after_battle(self) -> None:
         self.data.reset_stat()
+        self.update_predict()
 
 
 class Hero(BattleEntity):
@@ -70,7 +72,10 @@ class Hero(BattleEntity):
         self.data: HeroData = data
     
     def reset_after_battle(self):
+        super().reset_after_battle()
         if self.data.is_dead:
+            self.data.saved_hp = self.data.stat.max_health * 15/100
+            self.data.saved_mp = self.data.stat.max_mana * 15/100
             return
         
         self.data.saved_hp = self.data.cur_hp
@@ -83,31 +88,36 @@ class Enemy(BattleEntity):
         super().__init__(data, path_or_texture, scale, center_x, center_y, angle, **kwargs)
         self.data: EnemyData = data
 
+    def reset_after_battle(self):
+        super().reset_after_battle()
+        self.data.cur_hp = self.data.stat.max_health
+        self.data.cur_mp = self.data.stat.max_mana
 
 # Note
 # When using the same data path for identical entities        
 
 # DONT DO THIS, it references to the same data
-dummy_data = HeroData()
+# dummy_data = HeroData()
 
-tes_obj = Hero(data=dummy_data)
+# tes_obj = Hero(data=dummy_data)
 # tes_obj1 = Hero(data=dummy_data)
 # tes_obj2 = Hero(data=dummy_data)
 
 # DO THIS INSTEAD, make new instances of the same path
-# dummy_data = HeroData()
+dummy_data = HeroData()
 # dummy_data1 = HeroData()
 # dummy_data2 = HeroData()
 
-# tes_obj = Hero(data=dummy_data)
+tes_obj = Hero(data=dummy_data)
 # tes_obj1 = Hero(data=dummy_data1)
 # tes_obj2 = Hero(data=dummy_data2)
 
-
+print (tes_obj.data)
 # print(id(tes_obj.data.skill_list)) #omg it works 1!!1!!!1
 # print(id(tes_obj1.data.skill_list)) #omg it works 1!!1!!!1
 # print(id(tes_obj2.data.skill_list)) #omg it works 1!!1!!!1
 
-print(tes_obj.data)
+# print(tes_obj.data)
 
-
+# tes debug
+# python -m python_version.battle_entity.battle_entity

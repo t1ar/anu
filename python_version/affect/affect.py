@@ -57,14 +57,24 @@ class Affect(ABC):
 # Intermediate Categories
 @dataclass
 class Offensive(Affect, ABC):
-    #used by offensive's child
-    def _check_death(self, t: BattleEntity):
+    #used by offensive's child as super() at the end of func
+    def execute_affect(self, targets) -> None:
+        for t in targets:
+            if self._is_dead(t):
+                return
+            t.trigger_hurt_anim()
+            battle_event.emit(EVENTS.ENTITY.HURT, t) #UI will read
+    
+    @staticmethod
+    def _is_dead(t: BattleEntity) -> bool:
         if t.data.cur_hp <= 0:
+            t.trigger_death_anim()
+            battle_event.emit(EVENTS.ENTITY.DIED, t) # BattleManager & UI will read
             if isinstance(t, Hero):
                 t.data.is_dead = True
-                battle_event.emit(EVENTS.HERO.DIED, t)
-            elif isinstance(t, Enemy):
-                battle_event.emit(EVENTS.ENEMY.DIED, t)
+            return True
+        return False
+            
 
     #skip usage
     def revert_affect(self, target: BattleEntity):

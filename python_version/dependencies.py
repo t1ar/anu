@@ -11,21 +11,23 @@
 #dataclass to skip typing __init__() for instancing a new object, and also makes a new default def __post_init__()
 #field to tell python what to do to the self.fields behaviour, like init, default value, etc 
 from dataclasses import dataclass, field 
-from typing import List, Dict, Any, TYPE_CHECKING
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from pathlib import Path
 from abc import ABC, abstractmethod
-from copy import deepcopy, copy # try to not use deepcopy, very bad for performance
+from copy import copy #, deepcopy # try to not use deepcopy, very bad for performance, either copy whats needed or instance a new object with the same data
 from enum import Enum, auto
 from pymitter import EventEmitter as Signal
+import random
+from functools import cmp_to_key
 
 av_const: float = 10000.0 
 game_event = Signal(wildcard=True)
 battle_event = Signal()
 
 
-class BattleState(Enum):
+class BattleState:
     IDLE        = "idle"        # battle not started
-    SELECTING   = "selecting"   # player choosing action
+    PLAYER_TURN = "selecting"   # player choosing action
     ANIMATING   = "animating"   # skill/attack playing out
     PROGRESSING = "progressing"  # calculate current turns
     RESOLVING   = "resolving"   # trigger damage, deaths
@@ -40,13 +42,22 @@ class EVENTS:
         
     class BATTLE:
         STARTED = "battle.started"
-        ANIMATION_START = "battle.animation_start"
-        ANIMATION_FINISH = "battle.animation_finish"
         ENDED = "battle.ended"
+
+    class ANIMATION:     
+        START = "battle.animation.start"
+        FINISH = "battle.animation.finish"
+
+    class UI:
+        PLAYER_TURN = "battle.ui.player_turn"
+        ENEMY_TURN = "battle.ui.enemy_turn"
+        PREDICTION = "battle.ui.prediction"
+
 
 #Rule of thumb when declaring class default variable
 #Declare Child first, and then Parent
 #Or just the Child, NOT THE OTHER WAY AROUND
+#In other words, Default first, and then Non-default
 
 # things to mention when making class with @classmethod
 # 1. if there is a default value, its optional to init with your own value but not needed
