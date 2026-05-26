@@ -1,4 +1,4 @@
-from ..dependencies import dataclass
+from dependencies import dataclass
 
 @dataclass
 class EntityCondition:

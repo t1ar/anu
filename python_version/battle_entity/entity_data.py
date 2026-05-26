@@ -1,12 +1,12 @@
 from __future__ import annotations
-from ..dependencies import*
-from ..battle_entity.skill import Skill
-from ..battle_entity.entity_stat import EntityStat
-from ..battle_entity.entity_cond import EntityCondition
+from dependencies import*
+from battle_entity.entity_stat import EntityStat
+from battle_entity.entity_cond import EntityCondition
 import json
 
 if TYPE_CHECKING:
     from ..affect.affect import Affect
+    from ..battle_entity.skill import Skill
 
 
 class TEAM(Enum):

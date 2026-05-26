@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..dependencies import TYPE_CHECKING, dataclass, field, ABC, abstractmethod, copy, List, battle_event, EVENTS
+from dependencies import TYPE_CHECKING, dataclass, field, ABC, abstractmethod, copy, List, battle_event, EVENTS
 
 
 if TYPE_CHECKING:

@@ -1,6 +1,6 @@
 from __future__ import annotations
-from ..dependencies import TYPE_CHECKING, dataclass, List
-from ..affect.affect import Supportive
+from dependencies import TYPE_CHECKING, dataclass, List
+from affect.affect import Supportive
 
 if TYPE_CHECKING:
     from ..affect.affect import BattleEntity

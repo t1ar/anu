@@ -1,10 +1,9 @@
-from __future__ import annotations
-from ..dependencies import List, TYPE_CHECKING, ABC, copy
-from ..battle_entity.entity_data import EntityData, HeroData, EnemyData
+from dependencies import List, TYPE_CHECKING, ABC, copy
+from battle_entity.entity_data import EntityData, HeroData, EnemyData
 import arcade
 
 if TYPE_CHECKING:
-    from ..affect.affect import Affect, Offensive
+    from ..affect.affect import Affect
 
 
 class BattleEntity(arcade.Sprite, ABC):
@@ -50,7 +49,7 @@ class BattleEntity(arcade.Sprite, ABC):
                 expired.append(affect)
         
         for affect in expired:
-            if not affect.is_tick and not isinstance(affect, Offensive):
+            if not affect.is_tick:
                 affect.revert_affect(self)
                 #add signal to anim or vfx
             self.data.active_affects.remove(affect)
@@ -104,15 +103,15 @@ class Enemy(BattleEntity):
 # tes_obj2 = Hero(data=dummy_data)
 
 # DO THIS INSTEAD, make new instances of the same path
-dummy_data = HeroData()
+# dummy_data = HeroData()
 # dummy_data1 = HeroData()
 # dummy_data2 = HeroData()
 
-tes_obj = Hero(data=dummy_data)
+# tes_obj = Hero(data=dummy_data)
 # tes_obj1 = Hero(data=dummy_data1)
 # tes_obj2 = Hero(data=dummy_data2)
 
-print (tes_obj.data)
+# print (tes_obj.data)
 # print(id(tes_obj.data.skill_list)) #omg it works 1!!1!!!1
 # print(id(tes_obj1.data.skill_list)) #omg it works 1!!1!!!1
 # print(id(tes_obj2.data.skill_list)) #omg it works 1!!1!!!1

@@ -1,7 +1,7 @@
-from ..dependencies import*
-from ..battle_entity.battle_entity import Hero, Enemy
-from ..battle.battle_ui import BattleUI
-from ..battle.battle_manager import BattleManager
+from dependencies import*
+from battle_entity.battle_entity import Hero, Enemy
+from battle.battle_ui import BattleUI
+from battle.battle_manager import BattleManager
 import arcade
 
 class BattleScene(arcade.View):

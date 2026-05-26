@@ -4,6 +4,8 @@ from battle.battle_scene import BattleScene
 from pyglet.window import Window
 import arcade
 
+    
+
 class _GameManager(arcade.Window):
     def __init__(self):
         super().__init__(
@@ -15,22 +17,30 @@ class _GameManager(arcade.Window):
             center_window=True,
             vsync=True,
         )
+        from TESmain_menu import MainMenuScene
+        self.show_view(MainMenuScene())
 
     def start_battle(self, Heroes: List[Hero], Enemies: List[Enemy]):
         self.battle_scene = BattleScene(Heroes, Enemies)
-        self.battle_scene.vie
-
-
-
-
-
-
-
-
-
-
-
-
+        self.show_view(self.battle_scene)
 
 #singleton
 GameManager = _GameManager()
+
+def main():
+    GameManager
+    arcade.run()
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+

@@ -1,9 +1,9 @@
 from __future__ import annotations
-from ..dependencies import*
-from ..affect.affect import Affect, Offensive, Defensive, Supportive
-from ..affect.defense import DEFENSE_MAP
-from ..affect.support import SUPPORT_MAP
-from ..affect.offense import OFFENSE_MAP
+from dependencies import*
+from affect.affect import Affect, Offensive, Defensive, Supportive
+from affect.defense import DEFENSE_MAP
+from affect.support import SUPPORT_MAP
+from affect.offense import OFFENSE_MAP
 
 AFFECT_MAP = DEFENSE_MAP | SUPPORT_MAP | OFFENSE_MAP
 

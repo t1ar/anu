@@ -1,7 +1,7 @@
-from ..dependencies import*
-from ..battle_entity.battle_entity import BattleEntity, Hero, Enemy
-from ..battle_entity.entity_data import TEAM
-from ..affect.affect import Affect
+from dependencies import*
+from battle_entity.battle_entity import BattleEntity, Hero, Enemy
+from battle_entity.entity_data import TEAM
+from affect.affect import Affect
 
 #this is a singleton class, everyone can access the data freely
 class _BattleManager:

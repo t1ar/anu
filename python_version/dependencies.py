@@ -6,7 +6,11 @@
 # this is useful if ur lazy like me and dont want to stringify it manually
 # only for python 3.13 and below
 #
-# and use TYPE_CHECKING for if you want to import class for autocompletion but avoid import loop
+# and use TYPE_CHECKING for if you want to import class for marking it as a type
+# but ONLY do this when you're not calling the method/property of it,
+# because in runtime, TYPE_CHECKING is false, so it never actually import anything
+
+# or just do lazy import, by importing the moment you actually need it
 
 #dataclass to skip typing __init__() for instancing a new object, and also makes a new default def __post_init__()
 #field to tell python what to do to the self.fields behaviour, like init, default value, etc 

@@ -1,5 +1,5 @@
-from ..dependencies import*
-from ..battle_entity.battle_entity import Hero
+from dependencies import*
+from battle_entity.battle_entity import Hero
 from arcade.gui import UIManager
 
 class BattleUI:
