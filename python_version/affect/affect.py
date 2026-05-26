@@ -1,9 +1,8 @@
 from __future__ import annotations
 from dependencies import TYPE_CHECKING, dataclass, field, ABC, abstractmethod, copy, List, battle_event, EVENTS
 
-
 if TYPE_CHECKING:
-    from ..battle_entity.battle_entity import BattleEntity, Hero, Enemy
+    from battle_entity.battle_entity import BattleEntity
 
 
 # Target Blueprint Guide :
@@ -19,6 +18,8 @@ class Affect(ABC):
 
     #concrete method
     def apply_to(self, caster_: BattleEntity, targets: List[BattleEntity]) -> None:
+        if not targets:
+            return
         for t in targets:
             dupe: Affect = copy(self)
             dupe.caster = caster_
@@ -58,24 +59,17 @@ class Affect(ABC):
 @dataclass
 class Offensive(Affect, ABC):
     #used by offensive's child as super() at the end of func
+    total_damage = field(default=0, init=False)
+
     def execute_affect(self, targets) -> None:
         for t in targets:
-            if self._is_dead(t):
-                return
-            t.trigger_hurt_anim()
-            battle_event.emit(EVENTS.ENTITY.HURT, t) #UI will read
-    
-    @staticmethod
-    def _is_dead(t: BattleEntity) -> bool:
-        if t.data.cur_hp <= 0:
-            t.trigger_death_anim()
-            battle_event.emit(EVENTS.ENTITY.DIED, t) # BattleManager & UI will read
-            if isinstance(t, Hero):
-                t.data.is_dead = True
-            return True
-        return False
-            
+            battle_event.emit(EVENTS.UI.DAMAGE, self.total_damage, self.caster, t)
 
+            if t.data.cur_hp <= 0:
+                battle_event.emit(EVENTS.ENTITY.DIED, t) #BattleScene will read
+            else:
+                battle_event.emit(EVENTS.ENTITY.HURT, t) #BattleScene will read
+    
     #skip usage
     def revert_affect(self, target: BattleEntity):
         pass

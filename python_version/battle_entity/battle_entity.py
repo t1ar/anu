@@ -1,10 +1,10 @@
-from dependencies import List, TYPE_CHECKING, ABC, copy
+from __future__ import annotations
+from dependencies import List, TYPE_CHECKING, ABC, copy, random, battle_event, EVENTS
 from battle_entity.entity_data import EntityData, HeroData, EnemyData
 import arcade
 
 if TYPE_CHECKING:
-    from ..affect.affect import Affect
-
+    from affect.affect import Affect
 
 class BattleEntity(arcade.Sprite, ABC):
     def __init__(self, data: EntityData, path_or_texture = None, scale = 1, center_x = 0, center_y = 0, angle = 0, **kwargs):
@@ -12,6 +12,7 @@ class BattleEntity(arcade.Sprite, ABC):
 
         self.data: EntityData = data
         self.data_predict: EntityData = None
+        
         
         #anim instance things here from arcade
 
@@ -69,6 +70,7 @@ class Hero(BattleEntity):
     def __init__(self, data: HeroData, path_or_texture=None, scale=1, center_x=0, center_y=0, angle=0, **kwargs):
         super().__init__(data, path_or_texture, scale, center_x, center_y, angle, **kwargs)
         self.data: HeroData = data
+        
     
     def reset_after_battle(self):
         super().reset_after_battle()
@@ -91,6 +93,18 @@ class Enemy(BattleEntity):
         super().reset_after_battle()
         self.data.cur_hp = self.data.stat.max_health
         self.data.cur_mp = self.data.stat.max_mana
+
+    def ai_pick(self, ally: List[Enemy], targets: List[Hero]):
+        available = [s for s in self.data.skill_list if s.mp_cost <= self.data.cur_mp]
+        skill = random.choice(available)
+        main_target: BattleEntity = None
+        if skill.target_view == "SINGLE_ALLY":
+            main_target = random.choice(ally)
+        if skill.target_view == "SINGLE_ENEMY":
+            main_target = random.choice(targets)
+        
+        battle_event.emit(EVENTS.ENTITY.ACTION, self, skill.affect_list, main_target, skill.mp_cost, skill.mp_regen)
+
 
 # Note
 # When using the same data path for identical entities        

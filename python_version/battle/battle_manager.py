@@ -31,13 +31,22 @@ class _BattleManager:
         self.alive_entities = list(filter(lambda a: a.data.cur_hp > 0, self.all_entities))
         
         battle_event.on(EVENTS.ENTITY.DIED, self._on_entity_died)
+        battle_event.on(EVENTS.ENTITY.ACTION, self._on_entity_action)
 
         battle_event.emit(EVENTS.BATTLE.STARTED, heroes, enemies)
         battle_event.once(EVENTS.BATTLE.ANIMATION_FINISH, self._progress)
 
     def finish_battle(self):
-        self.state_change(BattleState.FINISHED)
+        self.state_change(BattleState.ANIMATING)
         battle_event.off(EVENTS.ENTITY.DIED, self._on_entity_died)
+
+    def _if_finished(self):
+        if all(h.data.cur_hp <= 0 for h in self.heroes):
+            battle_event.emit(EVENTS.BATTLE.FINISH_LOSE)
+
+        if all(e.data.cur_hp <= 0 for e in self.enemies):
+            battle_event.emit(EVENTS.BATTLE.FINISH_WIN)
+        
 
     #event handler
     def _on_entity_died(self, entity: BattleEntity): #from Affect, affect knows if it killed an Entity
@@ -50,7 +59,11 @@ class _BattleManager:
 
     #update progress
     def _progress(self) -> None:
-        self.state_change(BattleState.PROGRESSING) #UI reads tis
+        self.state_change(BattleState.PROGRESSING) #UI/BattleScene reads tis
+
+        if self._if_finished():
+            self._finish_battle()
+            return
 
         self._update_all_order()
         battle_event.emit(EVENTS.UI.PREDICTION, self.turn_order_pred)
@@ -66,11 +79,12 @@ class _BattleManager:
         self.cur_entity.tick_affects()
 
         if self.cur_entity not in self.alive_entities: #if entity died from tick affect
-            self._progress() #reset progress, entity doesnt exist,
+            self._update_progress() #reset progress, entity doesnt exist,
             return
         
         if self.cur_entity.data.active_condition.sleepy:
-            pass
+            self._update_progress() #reset progress, entity sleepy,
+            return
 
         battle_event.once(EVENTS.ANIMATION.FINISH, self._update_progress)
 
@@ -84,6 +98,27 @@ class _BattleManager:
         self.cur_entity.data.reset_av()
         self.cur_entity.update_predict()
         self._progress()
+
+    def _on_entity_action(self, caster: BattleEntity, action: List[Affect], main_target: BattleEntity = None, 
+                          mp_cost: int = 0, mp_regen: int = 0):
+        caster.data.cur_mp += mp_regen - mp_cost
+        caster.data.cur_mp = min(caster.data.cur_mp, caster.data.saved_stat.max_mana)
+        caster.data.cur_mp = max(caster.data.cur_mp, 0)
+        
+        for a in action:
+            targets = a.resolve_targets(caster, self.alive_entities)
+            if not targets and main_target:
+                targets = [main_target]
+            a.apply_to(caster, targets)
+
+    def _update_view(self): #WIP
+        if isinstance(self.cur_entity, Hero):
+            self.state_change(BattleState.PLAYER_TURN)
+            battle_event.emit(EVENTS.BATTLE.PLAYER_TURN, self.cur_entity, self.alive_entities)
+        elif isinstance(self.cur_entity, Enemy):
+            self.state_change(BattleState.ENEMY_TURN)
+            self.cur_entity.ai_pick(self.enemies, self.heroes)
+            
 
 
 
@@ -148,13 +183,7 @@ class _BattleManager:
         while len(self.turn_order_pred) < 10:
             self._add_prediction_order(self.turn_order_pred, av_sim)
 
-    def _update_view(self):
-        if isinstance(self.cur_entity, Hero):
-            self.state_change(BattleState.PLAYER_TURN)
-            battle_event.emit(EVENTS.UI.PLAYER_TURN, self.cur_entity)
-        else:
-            self.state_change(BattleState.ENEMY_TURN)
-            battle_event.emit(EVENTS.UI.ENEMY_TURN)
+    
 
 
 

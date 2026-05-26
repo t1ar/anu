@@ -1,15 +1,16 @@
 #this is python compiler setting, use directly in files
 # from __future__ import annotations , basically stringify all your annotation
 # for e.g, def func() -> type(self), now turns to def func() -> "type(self)"
-# used to avoid class undefined typing crash, like:
-# for @classmethod, you return itself, but its not defined yet
 # this is useful if ur lazy like me and dont want to stringify it manually
 # only for python 3.13 and below
-#
-# and use TYPE_CHECKING for if you want to import class for marking it as a type
-# but ONLY do this when you're not calling the method/property of it,
-# because in runtime, TYPE_CHECKING is false, so it never actually import anything
 
+# used to avoid class undefined typing crash, like:
+# for @classmethod, you return itself, but its not defined yet
+# or you have conflicting import loop: A need B, B need A
+
+# and use TYPE_CHECKING for if you want to import class for autocompletion
+# keep in mind, TYPE_CHECKING is false during run-time, so you would either need
+# __future__ to automatically define it for you,
 # or just do lazy import, by importing the moment you actually need it
 
 #dataclass to skip typing __init__() for instancing a new object, and also makes a new default def __post_init__()
@@ -36,26 +37,34 @@ class BattleState:
     PROGRESSING = "progressing"  # calculate current turns
     RESOLVING   = "resolving"   # trigger damage, deaths
     ENEMY_TURN  = "enemy_turn"  # enemy AI deciding
-    FINISHED    = "finished"
+    # FINISHED    = "finished"
 
 
 class EVENTS:
     class ENTITY:
-        DIED = "entity.died"
-        HURT = "entity.hurt"
+        ACTION = "entity.action"            #para = caster, affects, main_target, mp_cost, mp_regen
+        DIED = "entity.died"                #para = entity
+        HURT = "entity.hurt"                #para = entity
         
     class BATTLE:
-        STARTED = "battle.started"
-        ENDED = "battle.ended"
+        START = "battle.started"
+        PAUSE = "battle.pause"
+
+        PLAYER_TURN = "battle.player_turn"  #para = hero
+        ENEMY_TURN = "battle.enemy_turn"    #idk if needed
+
+        FINISH_LOSE = "battle.finish_lose"
+        FINISH_WIN = "battle.finish_win"
 
     class ANIMATION:     
-        START = "battle.animation.start"
-        FINISH = "battle.animation.finish"
+        START = "battle.animation.start"    #para = Entity
+        FINISH = "battle.animation.finish"  #para = None, for BattleManager to progress
 
     class UI:
-        PLAYER_TURN = "battle.ui.player_turn"
-        ENEMY_TURN = "battle.ui.enemy_turn"
-        PREDICTION = "battle.ui.prediction"
+
+        DAMAGE = "battle.ui.damage"         #para = total_damage
+        STATUS = "battle.ui.status"         #para = Heroes, Enemies
+        PREDICTION = "battle.ui.prediction" #para = turn_order_pred
 
 
 #Rule of thumb when declaring class default variable
@@ -73,7 +82,7 @@ class EVENTS:
 #
 # @dataclass
 # class ClassName:
-#     varB: bool                                  <--- this is non-default value, it must be at the top
-#     varA: int = 10                              <--- this is default value
-#     varC: list = field(default_factory=list)   <--- this makes list immutable 
+#     varB: bool                                <--- this is non-default value, it must be at the top
+#     varA: int = 10                            <--- this is default value
+#     varC: list = field(default_factory=list)  <--- this makes list immutable
 #     varD: str = field(init=False, default="") <--- this hides it when init, but need a default value

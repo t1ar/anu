@@ -17,24 +17,24 @@ class TEAM(Enum):
 @dataclass
 class EntityData(ABC):
     name: str = "EntityName" #save on json
-    team: TEAM = TEAM.HERO #placeholder
-    av: float = 0.0 #placeholder
+    team: TEAM = field(default=TEAM.HERO, init=False) #placeholder
+    av: float = field(default=0.0, init=False) #placeholder
+
+    cur_hp: int = field(default=0, init=False) #placeholder
+    cur_mp: int = field(default=0, init=False) #placeholder
 
     eyeshot_path: str = "path_here" #save on json
     textures2_path: str = "path_here" #save on json
     textures3_path: str = "path_here" #save on json
 
-    cur_hp: int = 0 #placeholder
-    cur_mp: int = 0 #placeholder
-    
     saved_stat: EntityStat = field(default_factory=EntityStat) #save on json
     stat: EntityStat = field(default_factory=EntityStat, init=False)
 
     skill_list_path: List[str] = field(default_factory=list) #save on json
     skill_list: List[Skill] = field(default_factory=list, init=False)
 
-    active_affects: List[Affect] = field(default_factory=list)
-    active_condition: EntityCondition = field(default_factory=EntityCondition)
+    active_affects: List[Affect] = field(default_factory=list, init=False)
+    active_condition: EntityCondition = field(default_factory=EntityCondition, init=False)
 
     def __post_init__(self):
         if type(self) is EntityData:
@@ -55,7 +55,7 @@ class EntityData(ABC):
     
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> EntityData:
-        ignored_keys = {"saved_stat", "skill_list", "stat"}
+        ignored_keys = {"saved_stat"}
         init_args = {k: v for k, v in data.items() if k in cls.__annotations__ and k not in ignored_keys}
 
         loaded_saved_stat = EntityStat.from_json(data.get("saved_stat", {}))

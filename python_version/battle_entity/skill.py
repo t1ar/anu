@@ -14,7 +14,7 @@ class Skill:
     texture_path: str = "path_here"
     #bla bla bla all image, etc
 
-    target_view: str = "SELF"
+    target_view: str = "SELF" #"SELF", "SINGLE_ALLY", "ALL_ALLIES", "SINGLE_ENEMY", "ALL_ENEMY"
 
     element: str = "PHYSICAL" #ELEMENT : PHYSICAL | MAGIC
     success_rate: int = 100
