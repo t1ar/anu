@@ -18,7 +18,8 @@ class _GameManager(arcade.Window):
             vsync=True,
         )
         from TESmain_menu import MainMenuScene
-        self.show_view(MainMenuScene())
+        self.main_menu = MainMenuScene(self)
+        self.show_view(self.main_menu)
 
     def start_battle(self, Heroes: List[Hero], Enemies: List[Enemy]):
         self.battle_scene = BattleScene(Heroes, Enemies)

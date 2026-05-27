@@ -59,7 +59,7 @@ class Affect(ABC):
 @dataclass
 class Offensive(Affect, ABC):
     #used by offensive's child as super() at the end of func
-    total_damage = field(default=0, init=False)
+    total_damage: int = field(default=0, init=False)
 
     def execute_affect(self, targets) -> None:
         for t in targets:

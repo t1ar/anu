@@ -5,6 +5,9 @@ import arcade
     
 
 class MainMenuScene(arcade.View):
+    def __init__(self, window = None, background_color = None):
+        super().__init__(window, background_color)
+
     def on_show_view(self):
         arcade.set_background_color(arcade.color.BLACK)
 
@@ -20,4 +23,5 @@ class MainMenuScene(arcade.View):
             heroes = [Hero(tes_data1)]
             enemies = [Enemy(tes_data2)]
             from TesGameManager import GameManager
+            self.window
             GameManager.start_battle(heroes, enemies)

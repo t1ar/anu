@@ -7,9 +7,9 @@ class BattleUI:
         self.manager = UIManager()
         self.manager.enable()
         
-        battle_event.on(EVENTS.UI.PLAYER_TURN, self.on_player_turn)
-        battle_event.on(EVENTS.UI.PREDICTION, self.on_prediction_update)
-        battle_event.on(EVENTS.UI.ENEMY_TURN, self.on_enemy_turn)
+        # battle_event.on(EVENTS.BATTLE.PLAYER_TURN, self.on_player_turn)
+        # battle_event.on(EVENTS.BATTLE.ENEMY_TURN, self.on_enemy_turn)
+        # battle_event.on(EVENTS.UI.PREDICTION, self.on_prediction_update)
 
     def on_player_turn(self, hero: Hero):
         self.show_action_menu(hero)

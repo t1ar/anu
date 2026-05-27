@@ -33,8 +33,8 @@ class _BattleManager:
         battle_event.on(EVENTS.ENTITY.DIED, self._on_entity_died)
         battle_event.on(EVENTS.ENTITY.ACTION, self._on_entity_action)
 
-        battle_event.emit(EVENTS.BATTLE.STARTED, heroes, enemies)
-        battle_event.once(EVENTS.BATTLE.ANIMATION_FINISH, self._progress)
+        battle_event.emit(EVENTS.BATTLE.START, heroes, enemies)
+        battle_event.once(EVENTS.ANIMATION.FINISH, self._progress)
 
     def finish_battle(self):
         self.state_change(BattleState.ANIMATING)
