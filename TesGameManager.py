@@ -1,6 +1,5 @@
 from dependencies import*
 from battle_entity.battle_entity import Hero, Enemy
-from battle.battle_scene import BattleScene
 from pyglet.window import Window
 import arcade
 
@@ -17,19 +16,21 @@ class _GameManager(arcade.Window):
             center_window=True,
             vsync=True,
         )
-        from TESmain_menu import MainMenuScene
-        self.main_menu = MainMenuScene(self)
-        self.show_view(self.main_menu)
+        self.main_menu = None
+        self.battle_scene = None
 
     def start_battle(self, Heroes: List[Hero], Enemies: List[Enemy]):
-        self.battle_scene = BattleScene(Heroes, Enemies)
+        from battle.battle_scene import BattleScene
+        self.battle_scene = BattleScene(Heroes, Enemies, window=self)
         self.show_view(self.battle_scene)
 
 #singleton
 GameManager = _GameManager()
 
 def main():
-    GameManager
+    from TESmain_menu import MainMenuScene
+    GameManager.main_menu = MainMenuScene(window=GameManager)
+    GameManager.show_view(GameManager.main_menu)
     arcade.run()
 
 if __name__ == "__main__":

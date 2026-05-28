@@ -25,6 +25,9 @@ from pymitter import EventEmitter as Signal
 import random
 from functools import cmp_to_key
 
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
 av_const: float = 10000.0 
 game_event = Signal(wildcard=True)
 battle_event = Signal()

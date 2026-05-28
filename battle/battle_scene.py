@@ -15,6 +15,7 @@ class BattleScene(arcade.View):
     def on_draw(self):
         self.clear()
         self.ui.draw()
+        arcade.draw_text("Battle Scene Active", 640, 360, arcade.color.RED, anchor_x="center")
 
     def on_hide_view(self):
         self.ui.cleanup()
