@@ -40,6 +40,8 @@ class EntityData(ABC):
         if type(self) is EntityData:
             raise TypeError(type(self).__name__, " is an abstract class and cannot be instantiated")
         print(type(self).__name__, " Compiled successfully")
+        from battle_entity.skill import dummy_skill
+        self.skill_list.append(dummy_skill)
         self.reset_stat()
         
     def reset_stat(self) -> None:

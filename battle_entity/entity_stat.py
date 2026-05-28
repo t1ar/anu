@@ -3,12 +3,12 @@ from dependencies import dataclass
 
 @dataclass
 class EntityStat:
-    max_health: int = 9
-    max_mana: int = 9
-    strength: int = 9
-    defense: int = 9
-    speed: int = 9
-    luck: int = 9
+    max_health: int = 9999
+    max_mana: int = 9999
+    strength: int = 9999
+    defense: int = 9999
+    speed: int = 9999
+    luck: int = 9999
 
     level: int = 1
 #Base Stats (Level 1)

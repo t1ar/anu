@@ -1,3 +1,4 @@
+from dependencies import*
 import arcade
 
 
@@ -16,6 +17,7 @@ class MainMenuView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ENTER:
+            from TESview import FieldView
             loading = LoadingView(next_view=FieldView())
             self.window.show_view(loading)
 
@@ -30,7 +32,7 @@ class LoadingView(arcade.View):
         arcade.set_background_color(arcade.color.BLACK)
 
     def on_update(self, delta_time):
-        self.progress += delta_time * 50  # simulate loading
+        self.progress += delta_time * 150  # simulate loading
         if self.progress >= 100:
             self.window.show_view(self.next_view)
 

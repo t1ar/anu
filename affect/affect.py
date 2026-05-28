@@ -33,6 +33,7 @@ class Affect(ABC):
 
         match self.target_type:
             case "SELF":
+                print("self type")
                 return [caster]
             case "SINGLE_ALLY":
                 return []
@@ -41,6 +42,7 @@ class Affect(ABC):
             case "SINGLE_ENEMY":
                 return []
             case "ALL_ENEMY":
+                print("aoe type")
                 return enemies
             case _: #default case, if no match
                 return []
@@ -61,15 +63,18 @@ class Offensive(Affect, ABC):
     #used by offensive's child as super() at the end of func
     total_damage: int = field(default=0, init=False)
 
-    def execute_affect(self, targets) -> None:
+    def execute_affect(self, targets: List[BattleEntity]) -> None:
         for t in targets:
             battle_event.emit(EVENTS.UI.DAMAGE, self.total_damage, self.caster, t)
-
             if t.data.cur_hp <= 0:
                 battle_event.emit(EVENTS.ENTITY.DIED, t) #BattleScene will read
             else:
                 battle_event.emit(EVENTS.ENTITY.HURT, t) #BattleScene will read
     
+    def predict_affect(self, caster, targets):
+        for t in targets:
+            t.data_predict.cur_hp -= self.total_damage
+
     #skip usage
     def revert_affect(self, target: BattleEntity):
         pass

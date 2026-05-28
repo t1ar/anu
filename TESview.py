@@ -1,3 +1,6 @@
+from dependencies import*
+from battle_entity.battle_entity import Hero, Enemy
+from battle_entity.entity_data import HeroData, EnemyData
 import arcade
 
 
@@ -24,53 +27,15 @@ class FieldView(arcade.View):
         self.scene.update(delta_time)
 
     def on_key_press(self, key, modifiers):
-    if key == arcade.key.ENTER:
-        # placeholder — replace with real hero/enemy data later
-        tes_data1 = HeroData()
-        tes_data2 = EnemyData()
-        heroes = [Hero(tes_data1)]
-        enemies = [Enemy(tes_data2)]
-
-        self.window.start_battle(heroes, enemies)
-
-    def on_key_press(self, key, modifiers):
         if key == arcade.key.B:
-            battle = BattleView(return_view=self)
+            from battle.battle_scene import BattleScene
+            tes_data1 = HeroData(name="Cirno")
+            tes_data2 = EnemyData(name="Evil cirno")
+            heroes = [Hero(tes_data1)]
+            enemies = [Enemy(tes_data2)]
+            battle = BattleScene(self, heroes, enemies)
             self.window.show_view(battle)
         elif key == arcade.key.ESCAPE:
+            from TESmain_menu import MainMenuView
             self.window.show_view(MainMenuView())
 
-
-class BattleView(arcade.View):
-    def __init__(self, return_view: arcade.View):
-        super().__init__()
-        self.return_view = return_view  # go back to field after battle
-
-    def on_show_view(self):
-        arcade.set_background_color(arcade.color.DARK_RED)
-
-    def on_draw(self):
-        self.clear()
-        arcade.draw_text("BATTLE SCENE", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-                         arcade.color.WHITE, font_size=36, anchor_x="center")
-        arcade.draw_text("Press ESC to flee", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50,
-                         arcade.color.LIGHT_GRAY, font_size=18, anchor_x="center")
-
-    def on_key_press(self, key, modifiers):
-        if key == arcade.key.ESCAPE:
-            self.window.show_view(self.return_view)
-
-
-class GameWindow(arcade.Window):
-    def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "My Game")
-        self.show_view(MainMenuView())
-
-
-def main():
-    window = GameWindow()
-    arcade.run()
-
-
-if __name__ == "__main__":
-    main()

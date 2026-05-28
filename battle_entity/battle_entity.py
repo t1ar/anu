@@ -7,12 +7,11 @@ if TYPE_CHECKING:
     from affect.affect import Affect
 
 class BattleEntity(arcade.Sprite, ABC):
-    def __init__(self, data: EntityData, path_or_texture = None, scale = 1, center_x = 0, center_y = 0, angle = 0, **kwargs):
-        super().__init__(path_or_texture, scale, center_x, center_y, angle, **kwargs)
+    def __init__(self, data: EntityData, path_or_texture = None, scale = 0.2):
+        super().__init__(path_or_texture, scale)
 
         self.data: EntityData = data
         self.data_predict: EntityData = None
-        
         
         #anim instance things here from arcade
 
@@ -22,7 +21,10 @@ class BattleEntity(arcade.Sprite, ABC):
         if type(self) is BattleEntity:
             raise TypeError(type(self).__name__, " is an Abstract class, cannot be instantiated")
         print(type(self).__name__, " Compiled successfully")
-        
+    
+    def draw_hit_box(self, color = ..., line_thickness = 2):
+        return super().draw_hit_box(color, line_thickness)
+
     def update_predict(self) -> None: #for now only need this
         self.data_predict = copy(self.data)
         self.data_predict.stat.luck = self.data.stat.luck
@@ -56,7 +58,8 @@ class BattleEntity(arcade.Sprite, ABC):
             self.data.active_affects.remove(affect)
 	
     def trigger_death_anim(self) -> None:
-        pass
+        self.color(arcade.color.RED)
+        
     
     def trigger_hurt_anim(self) -> None:
         pass
@@ -67,8 +70,8 @@ class BattleEntity(arcade.Sprite, ABC):
 
 
 class Hero(BattleEntity):
-    def __init__(self, data: HeroData, path_or_texture=None, scale=1, center_x=0, center_y=0, angle=0, **kwargs):
-        super().__init__(data, path_or_texture, scale, center_x, center_y, angle, **kwargs)
+    def __init__(self, data: HeroData, path = "assets/22.JPG"):
+        super().__init__(data, path_or_texture=path)
         self.data: HeroData = data
         
     
@@ -85,8 +88,8 @@ class Hero(BattleEntity):
 
 
 class Enemy(BattleEntity):
-    def __init__(self, data: EnemyData, path_or_texture=None, scale=1, center_x=0, center_y=0, angle=0, **kwargs):
-        super().__init__(data, path_or_texture, scale, center_x, center_y, angle, **kwargs)
+    def __init__(self, data: EnemyData, path = "assets/11.JPG"):
+        super().__init__(data, path_or_texture=path)
         self.data: EnemyData = data
 
     def reset_after_battle(self):

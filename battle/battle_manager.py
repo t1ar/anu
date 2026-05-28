@@ -20,6 +20,7 @@ class _BattleManager:
         self.state = new_state
 
     def start_battle(self, heroes: List[Hero], enemies: List[Enemy]) -> None:
+        print("started battle")
         self.exp_total = 0
         self.heroes = heroes
         self.enemies = enemies
@@ -34,7 +35,8 @@ class _BattleManager:
         battle_event.on(EVENTS.ENTITY.ACTION, self._on_entity_action)
 
         battle_event.emit(EVENTS.BATTLE.START, heroes, enemies)
-        battle_event.once(EVENTS.ANIMATION.FINISH, self._progress)
+        # battle_event.once(EVENTS.ANIMATION.FINISH, self._progress)
+        self._progress()
 
     def finish_battle(self):
         self.state_change(BattleState.ANIMATING)
@@ -74,8 +76,6 @@ class _BattleManager:
 
         self.cur_entity = self.turn_order_cur[0]
 
-        self._update_view()
-
         self.cur_entity.tick_affects()
 
         if self.cur_entity not in self.alive_entities: #if entity died from tick affect
@@ -86,9 +86,10 @@ class _BattleManager:
             self._update_progress() #reset progress, entity sleepy,
             return
 
-        battle_event.once(EVENTS.ANIMATION.FINISH, self._update_progress)
+        self._update_view()
 
     def _update_progress(self) -> None:
+        print("resolving")
         self.state_change(BattleState.RESOLVING)
         for e in self.turn_order_cur:
             if e is self.cur_entity:
@@ -101,6 +102,9 @@ class _BattleManager:
 
     def _on_entity_action(self, caster: BattleEntity, action: List[Affect], main_target: BattleEntity = None, 
                           mp_cost: int = 0, mp_regen: int = 0):
+        
+        battle_event.emit(EVENTS.ANIMATION.START, caster)
+        
         caster.data.cur_mp += mp_regen - mp_cost
         caster.data.cur_mp = min(caster.data.cur_mp, caster.data.saved_stat.max_mana)
         caster.data.cur_mp = max(caster.data.cur_mp, 0)
@@ -111,12 +115,23 @@ class _BattleManager:
                 targets = [main_target]
             a.apply_to(caster, targets)
 
+        battle_event.once(EVENTS.ANIMATION.FINISH, self._update_progress)
+        print("waiting for animation")
+        
+        
+
+        # battle_event.emit(EVENTS.ANIMATION.FINISH)
+        # print("animation finish here, example")
+
     def _update_view(self): #WIP
         if isinstance(self.cur_entity, Hero):
+            print("Hero's turn")
             self.state_change(BattleState.PLAYER_TURN)
-            battle_event.emit(EVENTS.BATTLE.PLAYER_TURN, self.cur_entity, self.alive_entities)
+            battle_event.emit(EVENTS.BATTLE.PLAYER_TURN, self.cur_entity)
         elif isinstance(self.cur_entity, Enemy):
+            print("Enemy's turn")
             self.state_change(BattleState.ENEMY_TURN)
+            battle_event.emit(EVENTS.BATTLE.ENEMY_TURN)
             self.cur_entity.ai_pick(self.enemies, self.heroes)
             
 

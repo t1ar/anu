@@ -50,5 +50,5 @@ class Skill:
             _support=sup_list
         )
     
-
+dummy_skill = Skill(_offense = [AFFECT_MAP["Attack1"](target_type="ALL_ENEMY")])
 # tes_obj = Skill()
