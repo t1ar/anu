@@ -22,6 +22,6 @@ SUIT_COLORS = {
 TEXT_ON_DARK  = (240, 230, 200)
 TEXT_ON_LIGHT = (20,  20,  20)
 
-NUM_PLAYERS   = 3          # 1 human + 2 CPU
+NUM_PLAYERS   = 4          # 1 human + 2 CPU
 DEAL_CARDS    = 7
 CPU_DELAY     = 1.2        # seconds before CPU plays

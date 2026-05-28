@@ -29,6 +29,7 @@ class GameplayView(arcade.View):
             Player("You", True),
             Player("CPU 1", False),
             Player("CPU 2", False),
+            Player("CPU 3", False)
         ][:NUM_PLAYERS]
 
         self.current_idx = 0
@@ -118,39 +119,64 @@ class GameplayView(arcade.View):
                          font_size=9, anchor_x="center")
 
     def _draw_cpu_hands(self):
+        # Define coordinates for Top, Left, and Right of the screen
         positions = [
-            (SCREEN_W // 2, SCREEN_H - 80),   
-            (80, SCREEN_H // 2),               
+            (80, SCREEN_H // 2),   # CPU 1 (Left)
+            (SCREEN_W // 2, SCREEN_H - 80),    # CPU 2 (Top)          
+            (SCREEN_W - 80, SCREEN_H // 2),    # CPU 3 (Right)
         ]
+
         for idx, player in enumerate(self.players[1:], 1):
             if idx - 1 >= len(positions):
                 break
+            
             px, py = positions[idx - 1]
             n = len(player.hand)
             spread = min(n * 28, 400)
             is_current = (self.current_idx == idx)
 
+            # Calculate geometry for card spread
             for i, card in enumerate(player.hand):
                 t = (i / max(n - 1, 1)) - 0.5 if n > 1 else 0
+                
                 if py > SCREEN_H - 200:     
+                    # Top position gets a horizontal spread
                     cx = px + t * spread
                     cy = py
                 else:                       
+                    # Left and Right positions get a vertical spread
                     cx = px
                     cy = py + t * spread
 
                 draw_card(card, cx, cy, face_up=False)
 
+            # Draw the yellow turn indicator ring
             if is_current:
                 arcade.draw_ellipse_outline(px, py - 70 if py > 400 else py,
                                             60, 20, arcade.color.YELLOW, 3)
 
+            # Construct the label
             label = f"{player.name}  [{n}]"
             if player.hand and len(player.hand) == 1:
                 label += " 🔴 UNO!"
-            arcade.draw_text(label, px, py - (CARD_H // 2 + 18) if py > 400 else px + 55,
+
+            # Anchor text correctly based on screen position
+            if py > 400:     # Top Bot
+                anchor = "center"
+                text_y = py - (CARD_H // 2 + 18)
+                text_x = px
+            elif px < 400:   # Left Bot
+                anchor = "left"
+                text_y = py + 55
+                text_x = px
+            else:            # Right Bot
+                anchor = "right"
+                text_y = py + 55
+                text_x = px
+
+            arcade.draw_text(label, text_x, text_y,
                              arcade.color.Color(230, 230, 230),
-                             font_size=11, anchor_x="center" if py > 400 else "left",
+                             font_size=11, anchor_x=anchor,
                              bold=(len(player.hand) == 1))
 
     def _draw_player_hand(self):
