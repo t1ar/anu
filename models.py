@@ -18,7 +18,20 @@ class Card:
         self.angle = 0.0
         self.face_up = True
         self.hover = False
-        self.chosen_color: Optional[str] = None  
+        self.chosen_color: Optional[str] = None
+
+    def update(self):
+        # Linear interpolation (Lerp)
+        # Moves the card 10% of the distance to its target every frame
+        speed = 0.10
+
+        # Snap to target if it's very close to stop micro-stuttering
+        if abs(self.target_x - self.x) < 0.5 and abs(self.target_y - self.y) < 0.5:
+            self.x = self.target_x
+            self.y = self.target_y
+        else:
+            self.x += (self.target_x - self.x) * speed
+            self.y += (self.target_y - self.y) * speed
 
     @property
     def is_wild(self):

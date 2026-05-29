@@ -80,6 +80,18 @@ class GameplayView(arcade.View):
             if self.cpu_timer <= 0:
                 self._cpu_play()
 
+            # --- NEW ANIMATION LOGIC ---
+            # Constantly check if targets need to shift (like when hovering)
+        if self.state == STATE_PLAYER_TURN:
+            self.update_card_targets()
+
+            # Update physical positions of all cards in play
+        for player in self.players:
+            for card in player.hand:
+                card.update()
+        for card in self.discard:
+            card.update()
+
     def on_draw(self):
         self.clear()
         self._draw_table()
@@ -93,6 +105,58 @@ class GameplayView(arcade.View):
         if self.state == STATE_GAME_OVER:
             self._draw_game_over()
 
+    def update_card_targets(self):
+        """Calculates where every card SHOULD be and updates their targets."""
+
+        # 1. Update Human Player targets (Bottom)
+        player = self.players[0]
+        n = len(player.hand)
+        if n > 0:
+            spread = min(n * (CARD_W + 6), SCREEN_W - 160)
+            start_x = SCREEN_W // 2 - spread // 2 + CARD_W // 2
+
+            for i, card in enumerate(player.hand):
+                card.target_x = start_x + i * (spread // max(n - 1, 1)) if n > 1 else SCREEN_W // 2
+
+                # Lift the card if it's playable or hovered
+                is_my_turn = (self.current_idx == 0 and self.state == STATE_PLAYER_TURN)
+                playable = card.can_play_on(self.top_card) if is_my_turn else False
+                hover = (self.hover_idx == i) and is_my_turn
+
+                lift = 20 if hover else (8 if playable and is_my_turn else 0)
+                card.target_y = 70 + lift
+
+        # 2. Update CPU targets
+        positions = [
+            (80, SCREEN_H // 2),  # Left Bot
+            (SCREEN_W // 2, SCREEN_H - 80),  # Top Bot
+            (SCREEN_W - 80, SCREEN_H // 2),  # Right Bot
+        ]
+
+        for idx, cpu in enumerate(self.players[1:], 1):
+            if idx - 1 >= len(positions):
+                break
+
+            px, py = positions[idx - 1]
+            n = len(cpu.hand)
+            spread = min(n * 28, 400)
+
+            for i, card in enumerate(cpu.hand):
+                t = (i / max(n - 1, 1)) - 0.5 if n > 1 else 0
+                if py > SCREEN_H - 200:  # Top
+                    card.target_x = px + t * spread
+                    card.target_y = py
+                else:  # Sides
+                    card.target_x = px
+                    card.target_y = py + t * spread
+
+        # 3. Update Discard Pile targets
+        cx, cy = SCREEN_W // 2 + 55, SCREEN_H // 2
+        for i, card in enumerate(self.discard):
+            offset = min(i, 2) * 6  # Only fan out the top few cards slightly
+            card.target_x = cx + offset
+            card.target_y = cy + offset
+
     def _draw_table(self):
         arcade.draw_ellipse_filled(SCREEN_W // 2, SCREEN_H // 2,
                                    700, 450,
@@ -102,10 +166,12 @@ class GameplayView(arcade.View):
                                     arcade.color.Color(20, 60, 30), 4)
 
     def _draw_discard(self):
+        # Draw the top 3 cards at their physical animated coordinates
+        for card in self.discard[-3:]:
+            draw_card(card, card.x, card.y, face_up=True)
+
+        # Keep the base coordinates just to position the "DISCARD" text label
         cx, cy = SCREEN_W // 2 + 55, SCREEN_H // 2
-        for i, card in enumerate(self.discard[-3:]):
-            offset = (i - 1) * 6
-            draw_card(card, cx + offset, cy + offset, face_up=True)
         arcade.draw_text("DISCARD", cx, cy - CARD_H // 2 - 14,
                          arcade.color.Color(200, 200, 200),
                          font_size=9, anchor_x="center")
@@ -119,57 +185,44 @@ class GameplayView(arcade.View):
                          font_size=9, anchor_x="center")
 
     def _draw_cpu_hands(self):
-        # Define coordinates for Top, Left, and Right of the screen
         positions = [
-            (80, SCREEN_H // 2),   # CPU 1 (Left)
-            (SCREEN_W // 2, SCREEN_H - 80),    # CPU 2 (Top)          
-            (SCREEN_W - 80, SCREEN_H // 2),    # CPU 3 (Right)
+            (80, SCREEN_H // 2),  # Left Bot
+            (SCREEN_W // 2, SCREEN_H - 80),  # Top Bot
+            (SCREEN_W - 80, SCREEN_H // 2),  # Right Bot
         ]
 
         for idx, player in enumerate(self.players[1:], 1):
             if idx - 1 >= len(positions):
                 break
-            
+
             px, py = positions[idx - 1]
             n = len(player.hand)
-            spread = min(n * 28, 400)
             is_current = (self.current_idx == idx)
 
-            # Calculate geometry for card spread
-            for i, card in enumerate(player.hand):
-                t = (i / max(n - 1, 1)) - 0.5 if n > 1 else 0
-                
-                if py > SCREEN_H - 200:     
-                    # Top position gets a horizontal spread
-                    cx = px + t * spread
-                    cy = py
-                else:                       
-                    # Left and Right positions get a vertical spread
-                    cx = px
-                    cy = py + t * spread
-
-                draw_card(card, cx, cy, face_up=False)
+            # Just draw the cards at their animated physical coordinates
+            for card in player.hand:
+                draw_card(card, card.x, card.y, face_up=False)
 
             # Draw the yellow turn indicator ring
             if is_current:
                 arcade.draw_ellipse_outline(px, py - 70 if py > 400 else py,
                                             60, 20, arcade.color.YELLOW, 3)
 
-            # Construct the label
+            # Construct the name label
             label = f"{player.name}  [{n}]"
             if player.hand and len(player.hand) == 1:
                 label += " 🔴 UNO!"
 
             # Anchor text correctly based on screen position
-            if py > 400:     # Top Bot
+            if py > 400:  # Top Bot
                 anchor = "center"
                 text_y = py - (CARD_H // 2 + 18)
                 text_x = px
-            elif px < 400:   # Left Bot
+            elif px < 400:  # Left Bot
                 anchor = "left"
                 text_y = py + 55
                 text_x = px
-            else:            # Right Bot
+            else:  # Right Bot
                 anchor = "right"
                 text_y = py + 55
                 text_x = px
@@ -185,34 +238,25 @@ class GameplayView(arcade.View):
         if n == 0:
             return
 
-        spread = min(n * (CARD_W + 6), SCREEN_W - 160)
-        start_x = SCREEN_W // 2 - spread // 2 + CARD_W // 2
-        cy = 70
-
-        is_my_turn = (self.current_idx == 0 and
-                      self.state in (STATE_PLAYER_TURN,))
+        is_my_turn = (self.current_idx == 0 and self.state == STATE_PLAYER_TURN)
 
         for i, card in enumerate(player.hand):
-            cx = start_x + i * (spread // max(n - 1, 1)) if n > 1 else SCREEN_W // 2
             hover = (self.hover_idx == i) and is_my_turn
             selected = (self.selected_idx == i)
             playable = card.can_play_on(self.top_card) if is_my_turn else False
 
-            lift = 0
-            if hover:
-                lift = 20
-            elif playable and is_my_turn:
-                lift = 8
-
-            draw_card(card, cx, cy + lift, face_up=True,
+            # Use the card's physical x and y! No more cx, cy, or lift math here.
+            draw_card(card, card.x, card.y, face_up=True,
                       hover=hover, selected=selected)
 
+            # Draw the dark overlay for non-playable cards
             if is_my_turn and not playable:
                 arcade.draw_rect_filled(
-                    arcade.XYWH(cx, cy + lift, CARD_W, CARD_H),
+                    arcade.XYWH(card.x, card.y, CARD_W, CARD_H),
                     arcade.color.Color(0, 0, 0, 100)
                 )
 
+        # Draw the player's name at the bottom
         arcade.draw_text(f"{player.name}  [{n}]" + (" 🔴 UNO!" if n == 1 else ""),
                          SCREEN_W // 2, 15,
                          arcade.color.Color(230, 230, 230),
@@ -315,7 +359,7 @@ class GameplayView(arcade.View):
 
         deck_cx, deck_cy = SCREEN_W // 2 - 55, SCREEN_H // 2
         if (abs(x - deck_cx) < CARD_W // 2 + 10 and
-                abs(y - deck_cy) < CARD_H // 2 + 10):
+                abs(y - deck_cy) < CARD_H // 2 + 10) :
             if not self.drew_this_turn:
                 self._human_draw()
             return
@@ -384,6 +428,12 @@ class GameplayView(arcade.View):
     def _play_card(self, player: Player, card: Card):
         player.remove_card(card)
         self.discard.append(card)
+
+        # --- ANIMATION TARGET POINT ---
+        # The update_card_targets() function will automatically
+        # tell this card to fly to the discard pile now!
+        self.update_card_targets()
+
         self._show_message(f"{player.name} plays {_card_label(card.value)}")
 
         if len(player.hand) == 0:
@@ -466,9 +516,19 @@ class GameplayView(arcade.View):
             self.deck = self.discard[:]
             random.shuffle(self.deck)
             self.discard = [top]
+
         if self.deck:
             card = self.deck.pop()
+
+            # --- ANIMATION SPAWN POINT ---
+            # Set the physical start position to the deck
+            card.x = SCREEN_W // 2 - 55
+            card.y = SCREEN_H // 2
+
             player.hand.append(card)
+
+            # Recalculate targets so the new card flies to the hand
+            self.update_card_targets()
             return card
         return None
 
