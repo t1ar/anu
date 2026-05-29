@@ -5,6 +5,34 @@ import random
 from typing import Optional
 from constants import *
 
+TEXTURE_CACHE = {}
+
+
+def get_card_texture(color: str, value: str, face_up: bool):
+    """Loads a texture from disk or retrieves it from the cache."""
+
+    if not face_up:
+        filename = "assets/cards/back.png"
+    elif value in ("wild", "wild4"):
+        filename = f"assets/cards/{value}.png"
+    else:
+        filename = f"assets/cards/{color}_{value}.png"
+
+    # If we already loaded this image, return it instantly
+    if filename in TEXTURE_CACHE:
+        return TEXTURE_CACHE[filename]
+
+    # Otherwise, load it from the hard drive and save it to the cache
+    try:
+        texture = arcade.load_texture(filename)
+        TEXTURE_CACHE[filename] = texture
+        return texture
+    except FileNotFoundError:
+        # Fallback if you forgot an image file!
+        print(f"Warning: Could not find {filename}")
+        # Return a default texture or let it crash so you can fix it
+        return arcade.load_texture(":resources:images/test_textures/error.png")
+
 class Card:
     SPECIALS = {"skip", "reverse", "draw2", "wild", "wild4"}
 
@@ -110,50 +138,31 @@ def _card_label(value: str) -> str:
     }.get(value, value)
 
 
-def draw_card(card: Card, cx: float, cy: float, face_up=True, hover=False, selected=False):
+def draw_card(card, cx: float, cy: float, face_up=True, hover=False, selected=False):
     scale = 1.08 if hover else 1.0
     w = CARD_W * scale
     h = CARD_H * scale
 
-    if not face_up:
-        draw_rounded_rect(cx, cy, w, h, CARD_RADIUS,
-                          (15, 40, 80), OUTLINE_COLOR, 2)
-        draw_rounded_rect(cx, cy, w * 0.6, h * 0.75, CARD_RADIUS - 2,
-                          (200, 20, 20), None)
-        arcade.draw_text("UNO", cx, cy,
-                         arcade.color.Color(255, 220, 0),
-                         bold=True, font_size=13,
-                         anchor_x="center", anchor_y="center")
-        return
+    # FIX: Safely handle when 'card' is None (like the deck pile)
+    if card is None or not face_up:
+        texture = get_card_texture(None, None, face_up=False)
+    else:
+        texture = get_card_texture(card.color, card.value, face_up)
 
-    bg = SUIT_COLORS[card.color]
-    eff = card.chosen_color if (card.is_wild and card.chosen_color) else card.color
-    eff_bg = SUIT_COLORS[eff]
+    # Draw a shadow beneath the card
+    arcade.draw_rect_filled(
+        arcade.XYWH(cx + 4, cy - 4, w, h),
+        arcade.color.Color(0, 0, 0, 80)
+    )
 
-    # Shadow
-    draw_rounded_rect(cx + 3, cy - 3, w, h, CARD_RADIUS, (0, 0, 0, 80))
+    # Draw the actual image using Arcade 3.0 syntax
+    arcade.draw_texture_rect(
+        texture,
+        arcade.XYWH(cx, cy, w, h)
+    )
 
-    # Main body
-    draw_rounded_rect(cx, cy, w, h, CARD_RADIUS, eff_bg,
-                      (255, 255, 180) if selected else OUTLINE_COLOR, 3 if selected else 2)
-
-    # Inner oval
-    arcade.draw_ellipse_filled(cx, cy, w * 0.72, h * 0.55, arcade.color.Color(255, 255, 255, 60))
-
-    # Label
-    label = _card_label(card.value)
-    font_size = 22 if len(label) == 1 else 14
-    txt_color = TEXT_ON_DARK if eff in ("blue", "wild") else TEXT_ON_LIGHT
-
-    arcade.draw_text(label, cx, cy,
-                     arcade.color.Color(*txt_color),
-                     bold=True, font_size=font_size,
-                     anchor_x="center", anchor_y="center")
-
-    # Corner pips
-    corner_size = 10
-    for dx, dy in [(-w/2 + 10, h/2 - 10), (w/2 - 10, -h/2 + 10)]:
-        arcade.draw_text(label, cx + dx, cy + dy,
-                         arcade.color.Color(*txt_color),
-                         bold=True, font_size=corner_size,
-                         anchor_x="center", anchor_y="center")
+    # FIX: Make sure 'card' actually exists before checking if it's wild
+    if face_up and card and card.is_wild and card.chosen_color:
+        indicator_color = SUIT_COLORS[card.chosen_color]
+        arcade.draw_circle_filled(cx, cy + h / 2 + 10, 8, arcade.color.Color(*indicator_color))
+        arcade.draw_circle_outline(cx, cy + h / 2 + 10, 8, arcade.color.WHITE, 2)
