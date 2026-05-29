@@ -4,6 +4,7 @@ import arcade
 import random
 from typing import Optional
 from constants import *
+from PIL import Image
 
 TEXTURE_CACHE = {}
 
@@ -28,10 +29,22 @@ def get_card_texture(color: str, value: str, face_up: bool):
         TEXTURE_CACHE[filename] = texture
         return texture
     except FileNotFoundError:
-        # Fallback if you forgot an image file!
-        print(f"Warning: Could not find {filename}")
-        # Return a default texture or let it crash so you can fix it
-        return arcade.load_texture(":resources:images/test_textures/error.png")
+        print(f"MISSING ASSET: Could not find '{filename}'. Loading assets/missing.png")
+
+        # Try to load your custom missing texture
+        try:
+            fallback = arcade.load_texture("assets/missing.png")
+        except FileNotFoundError:
+            # The ultimate safety net: If missing.png is ALSO missing, make a magenta box
+            print("CRITICAL: assets/missing.png is also missing!")
+
+            # Arcade 3.0+ Fix: Use Pillow to generate a raw RGBA image, then wrap it in a Texture
+            img = Image.new("RGBA", (int(CARD_W), int(CARD_H)), color=(255, 0, 255, 255))
+            fallback = arcade.Texture("fallback_magenta", img)
+
+        # Cache the fallback so we don't spam the hard drive trying to load missing files
+        TEXTURE_CACHE[filename] = fallback
+        return fallback
 
 class Card:
     SPECIALS = {"skip", "reverse", "draw2", "wild", "wild4"}
