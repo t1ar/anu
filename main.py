@@ -5,6 +5,10 @@ from constants import SCREEN_W, SCREEN_H, TITLE
 from views.main_menu import MainMenuView
 
 def main():
+    arcade.load_font("assets/fonts/NotoEmoji.ttf")
+    arcade.load_font("assets/fonts/NotoColorEmoji.ttf")
+    arcade.load_font("assets/fonts/DMSans.ttf")
+    arcade.load_font("assets/fonts/DMSansItalic.ttf")
     window = arcade.Window(SCREEN_W, SCREEN_H, TITLE, resizable=False)
     
     # Initialize the starting view

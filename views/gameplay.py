@@ -25,6 +25,8 @@ class GameplayView(arcade.View):
         self.deck: list[Card] = build_deck()
         self.discard: list[Card] = []
 
+        self.bg_texture = arcade.load_texture("assets/bg_gameplay.png")
+
         self.players = [
             Player("You", True),
             Player("CPU 1", False),
@@ -94,7 +96,12 @@ class GameplayView(arcade.View):
 
     def on_draw(self):
         self.clear()
-        self._draw_table()
+
+        arcade.draw_texture_rect(
+            self.bg_texture,
+            arcade.XYWH(SCREEN_W // 2, SCREEN_H // 2, SCREEN_W, SCREEN_H)
+        )
+
         self._draw_discard()
         self._draw_deck_pile()
         self._draw_cpu_hands()
@@ -156,14 +163,6 @@ class GameplayView(arcade.View):
             offset = min(i, 2) * 6  # Only fan out the top few cards slightly
             card.target_x = cx + offset
             card.target_y = cy + offset
-
-    def _draw_table(self):
-        arcade.draw_ellipse_filled(SCREEN_W // 2, SCREEN_H // 2,
-                                   700, 450,
-                                   arcade.color.Color(*TABLE_COLOR))
-        arcade.draw_ellipse_outline(SCREEN_W // 2, SCREEN_H // 2,
-                                    700, 450,
-                                    arcade.color.Color(20, 60, 30), 4)
 
     def _draw_discard(self):
         # Draw the top 3 cards at their physical animated coordinates
