@@ -26,13 +26,32 @@ class GameplayView(arcade.View):
         self.discard: list[Card] = []
 
         self.bg_texture = arcade.load_texture("assets/bg_gameplay.png")
+        self.arrow_cw_texture = arcade.load_texture("assets/arrow.png")
+        self.arrow_ccw_texture = self.arrow_cw_texture.flip_horizontally()
 
-        self.players = [
-            Player("You", True),
-            Player("CPU 1", False),
-            Player("CPU 2", False),
-            Player("CPU 3", False)
-        ][:NUM_PLAYERS]
+        self.bg_arrow_angle = 0.0
+
+        possible_names = []
+        try:
+            with open("assets/bot_names.txt", "r") as file:
+                # Read all lines, strip the hidden \n from the end of each, and ignore blank lines
+                for line in file:
+                    clean_name = line.strip()
+                    if clean_name:
+                        possible_names.append(clean_name)
+
+        except FileNotFoundError:
+            print("Warning: assets/bot_names.txt missing! Using default bot names.")
+            # The ultimate safety net fallback
+            possible_names = ["Bot A", "Bot B", "Bot C", "Bot D"]
+
+        chosen_names = random.sample(possible_names, 3)
+
+        self.players = []
+        self.players.append(Player("You", is_human=True))
+
+        for i in range(3):
+            self.players.append(Player(chosen_names[i], is_human=False))
 
         self.current_idx = 0
         self.direction = 1          
@@ -74,6 +93,14 @@ class GameplayView(arcade.View):
         arcade.set_background_color(arcade.color.Color(*BG_COLOR))
 
     def on_update(self, delta_time: float):
+
+        spin_speed = 30
+
+        if self.direction == 1:
+            self.bg_arrow_angle += spin_speed * delta_time
+        else:
+            self.bg_arrow_angle -= spin_speed * delta_time
+
         if self.message_timer > 0:
             self.message_timer -= delta_time
 
@@ -100,6 +127,18 @@ class GameplayView(arcade.View):
         arcade.draw_texture_rect(
             self.bg_texture,
             arcade.XYWH(SCREEN_W // 2, SCREEN_H // 2, SCREEN_W, SCREEN_H)
+        )
+
+        current_arrow = self.arrow_cw_texture if self.direction == 1 else self.arrow_ccw_texture
+
+        w = current_arrow.width
+        h = current_arrow.height
+
+        arrow_size = 500
+        arcade.draw_texture_rect(
+            current_arrow,
+            arcade.XYWH(SCREEN_W // 2, SCREEN_H // 2, w, h),
+            angle=self.bg_arrow_angle
         )
 
         self._draw_discard()
@@ -219,12 +258,12 @@ class GameplayView(arcade.View):
                 text_x = px
             elif px < 400:  # Left Bot
                 anchor = "left"
-                text_y = py + 55
-                text_x = px
+                text_y = py
+                text_x = px + 55
             else:  # Right Bot
                 anchor = "right"
-                text_y = py + 55
-                text_x = px
+                text_y = py
+                text_x = px - 55
 
             arcade.draw_text(label, text_x, text_y,
                              arcade.color.Color(230, 230, 230),
@@ -244,20 +283,20 @@ class GameplayView(arcade.View):
             selected = (self.selected_idx == i)
             playable = card.can_play_on(self.top_card) if is_my_turn else False
 
-            # Use the card's physical x and y! No more cx, cy, or lift math here.
             draw_card(card, card.x, card.y, face_up=True,
                       hover=hover, selected=selected)
 
-            # Draw the dark overlay for non-playable cards
-            if is_my_turn and not playable:
+            # --- UPDATED DIMMING LOGIC ---
+            # Dim the card if it's NOT your turn, OR if it's unplayable
+            if not is_my_turn or not playable:
                 arcade.draw_rect_filled(
                     arcade.XYWH(card.x, card.y, CARD_W, CARD_H),
-                    arcade.color.Color(0, 0, 0, 100)
+                    arcade.color.Color(0, 0, 0, 120)  # You can increase 120 to make it darker
                 )
 
-        # Draw the player's name at the bottom
+        # Player name
         arcade.draw_text(f"{player.name}  [{n}]" + (" 🔴 UNO!" if n == 1 else ""),
-                         SCREEN_W // 2, 15,
+                         SCREEN_W // 2, 150,
                          arcade.color.Color(230, 230, 230),
                          font_size=12, anchor_x="center", bold=(n == 1))
 
@@ -268,10 +307,10 @@ class GameplayView(arcade.View):
                          arcade.color.Color(240, 220, 80),
                          font_size=14, bold=True)
 
-        dir_sym = "⟳ Clockwise" if self.direction == 1 else "⟲ Counter-CW"
-        arcade.draw_text(dir_sym, SCREEN_W - 10, SCREEN_H - 30,
-                         arcade.color.Color(180, 220, 180),
-                         font_size=11, anchor_x="right")
+        # dir_sym = "⟳ Clockwise" if self.direction == 1 else "⟲ Counter-CW"
+        # arcade.draw_text(dir_sym, SCREEN_W - 10, SCREEN_H - 30,
+        #                  arcade.color.Color(180, 220, 180),
+        #                  font_size=11, anchor_x="right")
 
         if self.message and self.message_timer > 0:
             alpha = min(255, int(255 * self.message_timer / 2.0))
@@ -282,13 +321,13 @@ class GameplayView(arcade.View):
 
         if self.current_idx == 0 and self.state == STATE_PLAYER_TURN:
             arcade.draw_text("Click a card to play • Click deck to draw",
-                             SCREEN_W // 2, SCREEN_H - 20,
+                             SCREEN_W // 2, SCREEN_H // 30 + 160,
                              arcade.color.Color(150, 200, 150),
                              font_size=10, anchor_x="center")
 
         elif self.state == STATE_CPU_THINKING:
             arcade.draw_text(f"{self.current_player.name} is thinking…",
-                             SCREEN_W // 2, SCREEN_H - 20,
+                             SCREEN_W // 2, SCREEN_H // 2 + 90,
                              arcade.color.Color(180, 180, 180),
                              font_size=10, anchor_x="center")
                              

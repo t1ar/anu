@@ -9,40 +9,36 @@ from PIL import Image
 TEXTURE_CACHE = {}
 
 
-def get_card_texture(color: str, value: str, face_up: bool):
-    """Loads a texture from disk or retrieves it from the cache."""
-
+def get_card_texture(color, value, face_up: bool):
+    # 1. Determine the exact filename
     if not face_up:
-        filename = "assets/cards/back.png"
-    elif value in ("wild", "wild4"):
+        filename = "assets/cards/card_back.png"
+    elif color == "wild":
+        # Unplayed wild cards look for "assets/cards/wild.png"
         filename = f"assets/cards/{value}.png"
     else:
+        # This now handles BOTH normal cards (e.g. "red_0.png")
+        # AND played wilds (e.g. "red_wild.png")
         filename = f"assets/cards/{color}_{value}.png"
 
-    # If we already loaded this image, return it instantly
+    # 2. Check memory cache
     if filename in TEXTURE_CACHE:
         return TEXTURE_CACHE[filename]
 
-    # Otherwise, load it from the hard drive and save it to the cache
+    # 3. Load from disk with your custom fallback
     try:
         texture = arcade.load_texture(filename)
         TEXTURE_CACHE[filename] = texture
         return texture
     except FileNotFoundError:
         print(f"MISSING ASSET: Could not find '{filename}'. Loading assets/missing.png")
-
-        # Try to load your custom missing texture
         try:
             fallback = arcade.load_texture("assets/missing.png")
         except FileNotFoundError:
-            # The ultimate safety net: If missing.png is ALSO missing, make a magenta box
-            print("CRITICAL: assets/missing.png is also missing!")
-
-            # Arcade 3.0+ Fix: Use Pillow to generate a raw RGBA image, then wrap it in a Texture
+            from PIL import Image
             img = Image.new("RGBA", (int(CARD_W), int(CARD_H)), color=(255, 0, 255, 255))
             fallback = arcade.Texture("fallback_magenta", img)
 
-        # Cache the fallback so we don't spam the hard drive trying to load missing files
         TEXTURE_CACHE[filename] = fallback
         return fallback
 
@@ -156,11 +152,16 @@ def draw_card(card, cx: float, cy: float, face_up=True, hover=False, selected=Fa
     w = CARD_W * scale
     h = CARD_H * scale
 
-    # FIX: Safely handle when 'card' is None (like the deck pile)
     if card is None or not face_up:
         texture = get_card_texture(None, None, face_up=False)
     else:
-        texture = get_card_texture(card.color, card.value, face_up)
+        # Check if the card is a wild that has been assigned a color!
+        if card.is_wild and card.chosen_color:
+            effective_color = card.chosen_color
+        else:
+            effective_color = card.color
+
+        texture = get_card_texture(effective_color, card.value, face_up)
 
     # Draw a shadow beneath the card
     arcade.draw_rect_filled(
@@ -168,14 +169,8 @@ def draw_card(card, cx: float, cy: float, face_up=True, hover=False, selected=Fa
         arcade.color.Color(0, 0, 0, 80)
     )
 
-    # Draw the actual image using Arcade 3.0 syntax
+    # Draw the actual image
     arcade.draw_texture_rect(
         texture,
         arcade.XYWH(cx, cy, w, h)
     )
-
-    # FIX: Make sure 'card' actually exists before checking if it's wild
-    if face_up and card and card.is_wild and card.chosen_color:
-        indicator_color = SUIT_COLORS[card.chosen_color]
-        arcade.draw_circle_filled(cx, cy + h / 2 + 10, 8, arcade.color.Color(*indicator_color))
-        arcade.draw_circle_outline(cx, cy + h / 2 + 10, 8, arcade.color.WHITE, 2)
