@@ -273,7 +273,7 @@ class GameplayView(arcade.View):
             # Construct the name label
             label = f"{player.name}  [{n}]"
             if player.hand and len(player.hand) == 1:
-                label += " UNO!"
+                label += " ANU!"
             if player.won:
                 rank_str = self._get_rank_str(player)
                 label += f" WON!, at {rank_str} place"
@@ -340,7 +340,7 @@ class GameplayView(arcade.View):
                 )
 
         # Player name
-        arcade.draw_text(f"{player.name}  [{n}]" + (" UNO!" if n == 1 else ""),
+        arcade.draw_text(f"{player.name}  [{n}]" + (" ANU!" if n == 1 else ""),
                          SCREEN_W // 2, 150,
                          arcade.color.Color(230, 230, 230),
                          font_size=12, anchor_x="center", font_name=GAME_FONT,)
@@ -437,6 +437,11 @@ class GameplayView(arcade.View):
                         SCREEN_W // 2, bottom_y,
                         arcade.color.Color(150, 150, 150),
                         font_size=15, anchor_x="center")
+        
+        # arcade.draw_text("Press Esc to main menu",
+        #                 SCREEN_W // 2, bottom_y - 30,
+        #                 arcade.color.Color(150, 150, 150),
+        #                 font_size=15, anchor_x="center")
 
     def on_mouse_motion(self, x, y, dx, dy):
         # 1. Early exit if it's not the player's turn
@@ -512,8 +517,8 @@ class GameplayView(arcade.View):
                 self._human_play(idx)
     
     def on_key_press(self, key, modifiers):
-        # if key == arcade.key.R:
-        #     self._setup()
+        if key == arcade.key.R and self.state == STATE_GAME_OVER:
+            self._setup()
         if key == arcade.key.ESCAPE:
             pause_view = PauseMenuView(self)
             self.window.show_view(pause_view)
@@ -599,7 +604,7 @@ class GameplayView(arcade.View):
                 self.state = STATE_GAME_OVER
 
         if len(player.hand) == 1:
-            self._show_message(f" UNO! — {player.name}")
+            self._show_message(f" ANU! — {player.name}")
 
         if card.value == "skip":
             self._advance_turn()
