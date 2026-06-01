@@ -679,6 +679,10 @@ class GameplayView(arcade.View):
         if not self.deck:
             top = self.discard.pop()
             self.deck = self.discard[:]
+
+            for card in self.deck:
+                card.chosen_color = None
+
             random.shuffle(self.deck)
             self.discard = [top]
 
