@@ -8,8 +8,12 @@ ANU - Absolutely Not UNO adalah sebuah implementasi digital dari permainan kartu
 * Habibi - [25051204058]
 
 ## Fitur Utama
-* insert here
-* insert here
+* Play Card - Pemain dapat memainkan kartu di tangan sesuai warna dan angkanya.
+* Draw Card - Pemain dapat mengambil kartu di deck jika kekurangan kartu.
+* Switcheroo - Pemain dapat mengganti warna kartu di secara bebas.
+* Skip - Pemain dapat melompati giliran pemain setelahnya
+* Reverse - Pemain dapat memutar arah giliran permainan.
+* +2 dan +4 - Pemain dapat memberikan 2 atau 4 kartu kepada pemain setelahnya.
 
 ## Cara Menjalankan Project
 ### Prasyarat
@@ -39,14 +43,16 @@ ANU - Absolutely Not UNO adalah sebuah implementasi digital dari permainan kartu
     ```
 ## Penjelasan Implementasi OOP
 ### 1. Encapsulation
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue tortor, varius id pretium eget, pretium eget justo.
+Enkapsulasi diterapkan dalam GameplayView, semua method gameplay hanya bisa diakses oleh class GameplayView.
+Player tidak mengubah jumlah dari kartu yang dimainkan secara langsung, namun sistem akan memerintahkan method untuk mengurangi atau menambah jumlah kartu dari pemain.
 ### 2. Inheritence
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue tortor, varius id pretium eget, pretium eget justo.
+Penerapan inheritance ada pada setiap view. Tampilan game memakai turunan dari class view bawaan Arcade.
 ### 3. Abstraction 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue tortor, varius id pretium eget, pretium eget justo.
+Class view bawaan Arcade adalah sebuah class Abstract, hal ini membuat penerapan abstraction juga berada pada tiap view yang ada di dalam game ini.
 ### 4. Polymorphism
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue tortor, varius id pretium eget, pretium eget justo.
+Beberapa method seperti on_draw dan on_key_pressed pada beberapa class memiliki perintah yang berbeda walaupun menggunakan nama yang sama. 
 
 ## Screenshots
 ![Main Menu.](images/1.png)
 ![Gameplay.](images/2.png)
+![Setting.](images/3.png)
