@@ -103,6 +103,7 @@ class Player:
         self.name = name
         self.is_human = is_human
         self.hand: list[Card] = []
+        self.won: bool = False
 
     def playable_cards(self, top: Card) -> list[Card]:
         return [c for c in self.hand if c.can_play_on(top)]
