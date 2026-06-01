@@ -47,7 +47,7 @@ class PauseMenuView(arcade.View):
             from views.main_menu import MainMenuView
             menu_view = MainMenuView()
             self.window.show_view(menu_view)
-            arcade.stop_sound(self.game_view.music_player)
+            arcade.stop_sound(self.game_view.music)
         elif key == arcade.key.R:
             self.window.show_view(self.game_view)
             self.game_view._setup()

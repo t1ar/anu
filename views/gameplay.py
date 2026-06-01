@@ -90,16 +90,16 @@ class GameplayView(arcade.View):
             self.deck.insert(0, card)
         
         self.state = STATE_PLAYER_TURN
-
+        
         # 1. If music is already playing from a previous game, stop it first!
-        if hasattr(self, 'music_player') and self.music_player is not None:
-            arcade.stop_sound(self.music_player)
+        if hasattr(self, 'music') and self.music is not None:
+            arcade.stop_sound(self.music)
 
         # 2. Load the track
         self.bg_music = arcade.load_sound("assets/bgm/anu_bgm.mp3")
 
         # 3. Play it and save the player reference
-        self.music_player = arcade.play_sound(self.bg_music, volume=0.1, loop=True)
+        self.music = self.music_player(self.bg_music)
         self.play_sfx(self.sound_start)
 
 
@@ -458,7 +458,7 @@ class GameplayView(arcade.View):
         # 4. Play the sound ONLY if we moved onto a new card
         # (We check `is not None` so it doesn't play a sound when moving off a card onto the empty table)
         if self.hover_idx is not None and self.hover_idx != old_hover_idx:
-            arcade.play_sound(self.sound_hover, volume=0.2)
+            self.play_sfx(self.sound_hover, 0.2)
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_RIGHT and STATE_PLAYER_TURN and self.drew_this_turn:
@@ -726,3 +726,14 @@ class GameplayView(arcade.View):
         # Only play if the volume is above 0 (saves processing power if muted!)
         if final_vol > 0:
             arcade.play_sound(sound, volume=final_vol)
+    
+    def music_player(self, sound, base_vol=1.0):
+        """Helper method to automatically mix BGM with the global settings"""
+
+        # Calculate the final output volume
+        final_vol = base_vol * self.window.bgm_vol * self.window.master_vol
+
+        # Only play if the volume is above 0 (saves processing power if muted!)
+        if final_vol > 0:
+            arcade.play_sound(sound, volume=final_vol, loop=True)
+        
