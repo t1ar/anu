@@ -29,7 +29,14 @@ class GameplayView(arcade.View):
         self.arrow_cw_texture = arcade.load_texture("assets/arrow.png")
         self.arrow_ccw_texture = self.arrow_cw_texture.flip_horizontally()
 
+        self.sound_start = arcade.load_sound("assets/sfx/shuffle_deck.mp3")
+        self.sound_play = arcade.load_sound("assets/sfx/play_card.mp3")
+        self.sound_draw = arcade.load_sound("assets/sfx/take_card.mp3")
+        self.sound_hover = arcade.load_sound("assets/sfx/hover_deck.mp3")
+
         self.bg_arrow_angle = 0.0
+
+        self.total_time = 0.0
 
         possible_names = []
         try:
@@ -80,6 +87,19 @@ class GameplayView(arcade.View):
             self.deck.insert(0, card)
 
         self.state = STATE_PLAYER_TURN
+        self.play_sfx(self.sound_start)
+
+        # 1. If music is already playing from a previous game, stop it first!
+        if hasattr(self, 'music_player') and self.music_player is not None:
+            arcade.stop_sound(self.music_player)
+
+        # 2. Load the track
+        self.bg_music = arcade.load_sound("assets/bgm/anu_bgm.mp3")
+
+        # 3. Play it and save the player reference
+        self.music_player = arcade.play_sound(self.bg_music, volume=0.1, loop=True)
+
+
 
     @property
     def current_player(self) -> Player:
@@ -95,6 +115,7 @@ class GameplayView(arcade.View):
     def on_update(self, delta_time: float):
 
         spin_speed = 30
+        self.total_time += delta_time
 
         if self.direction == 1:
             self.bg_arrow_angle += spin_speed * delta_time
@@ -209,18 +230,18 @@ class GameplayView(arcade.View):
             draw_card(card, card.x, card.y, face_up=True)
 
         # Keep the base coordinates just to position the "DISCARD" text label
-        cx, cy = SCREEN_W // 2 + 55, SCREEN_H // 2
-        arcade.draw_text("DISCARD", cx, cy - CARD_H // 2 - 14,
-                         arcade.color.Color(200, 200, 200),
-                         font_size=9, anchor_x="center")
+        # cx, cy = SCREEN_W // 2 + 55, SCREEN_H // 2
+        # arcade.draw_text("DISCARD", cx, cy - CARD_H // 2 - 14,
+        #                  arcade.color.Color(200, 200, 200),
+        #                  font_size=9, anchor_x="center")
 
     def _draw_deck_pile(self):
         cx, cy = SCREEN_W // 2 - 55, SCREEN_H // 2
         for i in range(min(5, len(self.deck))):
             draw_card(None, cx + i * 1.5, cy + i * 1.5, face_up=False)
-        arcade.draw_text(f"DECK ({len(self.deck)})", cx, cy - CARD_H // 2 - 14,
+        arcade.draw_text(f"DECK ({len(self.deck)})", cx + 3, cy - CARD_H // 2 - 25,
                          arcade.color.Color(200, 200, 200),
-                         font_size=9, anchor_x="center")
+                         font_size=9,font_name=GAME_FONT, anchor_x="center")
 
     def _draw_cpu_hands(self):
         positions = [
@@ -242,19 +263,19 @@ class GameplayView(arcade.View):
                 draw_card(card, card.x, card.y, face_up=False)
 
             # Draw the yellow turn indicator ring
-            if is_current:
-                arcade.draw_ellipse_outline(px, py - 70 if py > 400 else py,
-                                            60, 20, arcade.color.YELLOW, 3)
+            # if is_current:
+            #     arcade.draw_ellipse_outline(px, py - 70 if py > 400 else py,
+            #                                 60, 20, arcade.color.YELLOW, 3)
 
             # Construct the name label
             label = f"{player.name}  [{n}]"
             if player.hand and len(player.hand) == 1:
-                label += " 🔴 UNO!"
+                label += " UNO!"
 
             # Anchor text correctly based on screen position
             if py > 400:  # Top Bot
                 anchor = "center"
-                text_y = py - (CARD_H // 2 + 18)
+                text_y = py - (CARD_H // 2 + 30)
                 text_x = px
             elif px < 400:  # Left Bot
                 anchor = "left"
@@ -265,10 +286,28 @@ class GameplayView(arcade.View):
                 text_y = py
                 text_x = px - 55
 
-            arcade.draw_text(label, text_x, text_y,
-                             arcade.color.Color(230, 230, 230),
-                             font_size=11, anchor_x=anchor,
-                             bold=(len(player.hand) == 1))
+            is_their_turn = (self.current_idx == idx)
+
+            if is_their_turn:
+                # math.sin goes from -1 to 1. This math normalizes it to bounce between 0 and 1
+                pulse = (math.sin(self.total_time * 6) + 1) / 2
+
+                # Pulse from White (255, 255, 255) to bright Yellow (255, 255, 0)
+                blue_channel = int(255 - (255 * pulse))
+                text_color = arcade.color.Color(255, 255, blue_channel)
+            else:
+                # Dim gray if it's not their turn
+                text_color = arcade.color.Color(180, 180, 180)
+
+            # Draw the bot's name
+            arcade.draw_text(
+                f"{player.name}  [{len(player.hand)}]",
+                text_x, text_y,
+                text_color,
+                font_size=12,
+                anchor_x=anchor,
+                font_name=GAME_FONT
+            )
 
     def _draw_player_hand(self):
         player = self.players[0]
@@ -295,17 +334,17 @@ class GameplayView(arcade.View):
                 )
 
         # Player name
-        arcade.draw_text(f"{player.name}  [{n}]" + (" 🔴 UNO!" if n == 1 else ""),
+        arcade.draw_text(f"{player.name}  [{n}]" + (" UNO!" if n == 1 else ""),
                          SCREEN_W // 2, 150,
                          arcade.color.Color(230, 230, 230),
-                         font_size=12, anchor_x="center", bold=(n == 1))
+                         font_size=12, anchor_x="center", font_name=GAME_FONT,)
 
     def _draw_hud(self):
         name = self.current_player.name
-        turn_txt = f"▶ {name}'s turn"
-        arcade.draw_text(turn_txt, 10, SCREEN_H - 30,
+        turn_txt = f"{name}'s turn"
+        arcade.draw_text(turn_txt, 40, SCREEN_H - 80,
                          arcade.color.Color(240, 220, 80),
-                         font_size=14, bold=True)
+                         font_size=20, font_name=GAME_FONT)
 
         # dir_sym = "⟳ Clockwise" if self.direction == 1 else "⟲ Counter-CW"
         # arcade.draw_text(dir_sym, SCREEN_W - 10, SCREEN_H - 30,
@@ -317,22 +356,22 @@ class GameplayView(arcade.View):
             arcade.draw_text(self.message,
                              SCREEN_W // 2, SCREEN_H // 2 + 160,
                              arcade.color.Color(255, 240, 100, alpha),
-                             font_size=22, bold=True, anchor_x="center")
+                             font_size=22, font_name=GAME_FONT, anchor_x="center")
 
         if self.current_idx == 0 and self.state == STATE_PLAYER_TURN:
             arcade.draw_text("Click a card to play • Click deck to draw",
                              SCREEN_W // 2, SCREEN_H // 30 + 160,
                              arcade.color.Color(150, 200, 150),
-                             font_size=10, anchor_x="center")
+                             font_size=10, font_name=GAME_FONT, anchor_x="center")
 
         elif self.state == STATE_CPU_THINKING:
             arcade.draw_text(f"{self.current_player.name} is thinking…",
                              SCREEN_W // 2, SCREEN_H // 2 + 90,
                              arcade.color.Color(180, 180, 180),
-                             font_size=10, anchor_x="center")
+                             font_size=10, font_name=GAME_FONT, anchor_x="center")
                              
         arcade.draw_text("Press ESC to Pause", 10, 15, 
-                         arcade.color.WHITE, 12)
+                         arcade.color.WHITE, 12, font_name=GAME_FONT)
 
     def _draw_color_picker(self):
         arcade.draw_rect_filled(arcade.XYWH(SCREEN_W // 2, SCREEN_H // 2,
@@ -341,7 +380,7 @@ class GameplayView(arcade.View):
 
         arcade.draw_text("Choose a color", SCREEN_W // 2, SCREEN_H // 2 + 90,
                          arcade.color.Color(255, 240, 100),
-                         font_size=22, bold=True, anchor_x="center")
+                         font_size=22, font_name=GAME_FONT, anchor_x="center")
 
         colors = ["red", "yellow", "green", "blue"]
         for i, c in enumerate(colors):
@@ -351,30 +390,41 @@ class GameplayView(arcade.View):
             arcade.draw_circle_outline(cx, cy, 24, arcade.color.Color(*OUTLINE_COLOR), 2)
             arcade.draw_text(c[0].upper(), cx, cy,
                              arcade.color.Color(255, 255, 255),
-                             font_size=14, bold=True, anchor_x="center", anchor_y="center")
+                             font_size=14, font_name=GAME_FONT, anchor_x="center", anchor_y="center")
 
     def _draw_game_over(self):
         arcade.draw_rect_filled(arcade.XYWH(SCREEN_W // 2, SCREEN_H // 2,
                                             SCREEN_W, SCREEN_H),
                                 arcade.color.Color(0, 0, 0, 200))
-        arcade.draw_text("🎉 GAME OVER 🎉",
+        arcade.draw_text("GAME OVER",
                          SCREEN_W // 2, SCREEN_H // 2 + 60,
                          arcade.color.Color(255, 230, 50),
-                         font_size=36, bold=True, anchor_x="center")
+                         font_size=36, font_name=GAME_FONT, anchor_x="center")
         arcade.draw_text(f"{self.winner.name} wins!",
                          SCREEN_W // 2, SCREEN_H // 2,
                          arcade.color.Color(255, 255, 255),
-                         font_size=24, anchor_x="center")
+                         font_size=24, font_name=GAME_FONT, anchor_x="center")
         arcade.draw_text("Press R to restart",
                          SCREEN_W // 2, SCREEN_H // 2 - 50,
                          arcade.color.Color(180, 180, 180),
-                         font_size=16, anchor_x="center")
+                         font_size=16, font_name=GAME_FONT, anchor_x="center")
 
     def on_mouse_motion(self, x, y, dx, dy):
+        # 1. Early exit if it's not the player's turn
         if self.state != STATE_PLAYER_TURN or self.current_idx != 0:
             self.hover_idx = None
             return
+
+        # 2. Save the card we were hovering over during the LAST frame
+        old_hover_idx = self.hover_idx
+
+        # 3. Figure out what card we are hovering over RIGHT NOW
         self.hover_idx = self._card_idx_at(x, y)
+
+        # 4. Play the sound ONLY if we moved onto a new card
+        # (We check `is not None` so it doesn't play a sound when moving off a card onto the empty table)
+        if self.hover_idx is not None and self.hover_idx != old_hover_idx:
+            arcade.play_sound(self.sound_hover, volume=0.2)
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button != arcade.MOUSE_BUTTON_LEFT:
@@ -383,31 +433,48 @@ class GameplayView(arcade.View):
         if self.state == STATE_GAME_OVER:
             return
 
+        # 1. COLOR PICKER MENU
         if self.state == STATE_PICK_COLOR:
             colors = ["red", "yellow", "green", "blue"]
             for i, c in enumerate(colors):
                 cx = SCREEN_W // 2 - 90 + i * 60
                 cy = SCREEN_H // 2 + 20
                 if math.hypot(x - cx, y - cy) < 28:
+                    # --- NEW: Play a sound when selecting a wild color ---
+                    self.play_sfx(self.sound_play)
                     self._finish_wild(c)
             return
 
         if self.state != STATE_PLAYER_TURN or self.current_idx != 0:
             return
 
+        # 2. DRAWING FROM THE DECK
         deck_cx, deck_cy = SCREEN_W // 2 - 55, SCREEN_H // 2
         if (abs(x - deck_cx) < CARD_W // 2 + 10 and
                 abs(y - deck_cy) < CARD_H // 2 + 10) :
             if not self.drew_this_turn:
+                # --- NEW: Play the draw sound ---
+                self.play_sfx(self.sound_draw)
                 self._human_draw()
             return
 
+        # 3. PLAYING A CARD FROM HAND
         idx = self._card_idx_at(x, y)
         if idx is not None:
             card = self.players[0].hand[idx]
             if card.can_play_on(self.top_card):
-                self._human_play(idx)
 
+                # --- NEW: Check what kind of card it is! ---
+                val = str(card.value).lower()
+                if "draw" in val or "+" in val:
+                    self.play_sfx(self.sound_play)
+                    # It's an attack! Play the draw sound
+                    self.play_sfx(self.sound_draw)
+                else:
+                    # It's a normal card! Play the standard snap
+                    self.play_sfx(self.sound_play)
+
+                self._human_play(idx)
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
             self._setup()
@@ -453,10 +520,19 @@ class GameplayView(arcade.View):
             playable.sort(key=lambda c: (0 if c.is_action else 1,
                                          -int(c.value) if c.value.isdigit() else 0))
             card = playable[0]
+            val = str(card.value).lower()
+            if "draw" in val or "+" in val:
+                self.play_sfx(self.sound_play)
+                self.play_sfx(self.sound_draw)
+            else:
+                self.play_sfx(self.sound_play)
+
             self._play_card(player, card)
         else:
+            self.play_sfx(self.sound_draw)
             drawn = self._draw_one(player)
             if drawn and drawn.can_play_on(self.top_card):
+                self.play_sfx(self.sound_play)
                 self._play_card(player, drawn)
             else:
                 self._show_message(f"{player.name} draws & passes")
@@ -480,7 +556,7 @@ class GameplayView(arcade.View):
             return
 
         if len(player.hand) == 1:
-            self._show_message(f"🔴 UNO! — {player.name}")
+            self._show_message(f" UNO! — {player.name}")
 
         if card.value == "skip":
             self._advance_turn()
@@ -580,3 +656,13 @@ class GameplayView(arcade.View):
     def _show_message(self, msg: str):
         self.message = msg
         self.message_timer = 2.0
+
+    def play_sfx(self, sound, base_vol=1.0):
+        """Helper method to automatically mix SFX with the global settings"""
+
+        # Calculate the final output volume
+        final_vol = base_vol * self.window.sfx_vol * self.window.master_vol
+
+        # Only play if the volume is above 0 (saves processing power if muted!)
+        if final_vol > 0:
+            arcade.play_sound(sound, volume=final_vol)

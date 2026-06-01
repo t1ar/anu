@@ -1,7 +1,7 @@
 # constants.py
 
 SCREEN_W, SCREEN_H = 1200, 800
-TITLE = "UNO — Arcade Edition"
+TITLE = "ANU - Absolutely Not UNO"
 
 CARD_W, CARD_H = 72, 108
 CARD_RADIUS = 8
@@ -25,3 +25,5 @@ TEXT_ON_LIGHT = (20,  20,  20)
 NUM_PLAYERS   = 4          # 1 human + 2 CPU
 DEAL_CARDS    = 7
 CPU_DELAY     = 1.2        # seconds before CPU plays
+
+GAME_FONT = ("DM Sans","sans-serif")
