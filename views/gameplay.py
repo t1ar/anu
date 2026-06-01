@@ -273,7 +273,7 @@ class GameplayView(arcade.View):
             label = f"{player.name}  [{n}]"
             if player.hand and len(player.hand) == 1:
                 label += " UNO!"
-            elif player.won:
+            if player.won:
                 rank_str = self._get_rank_str(player)
                 label += f" WON!, at {rank_str} place"
 
@@ -306,7 +306,7 @@ class GameplayView(arcade.View):
 
             # Draw the bot's name
             arcade.draw_text(
-                f"{player.name}  [{len(player.hand)}]",
+                label,
                 text_x, text_y,
                 text_color,
                 font_size=12,
