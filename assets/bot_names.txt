@@ -6,12 +6,13 @@ Terminator
 Wall-E
 C3PO
 R2-D2
+Chopper
 Bender
-ChatGPT
 AdamSmasher77
 Endra
 Sena
 Vian
+ChatGPT
 Gemini
 Claude
 CoPilot
