@@ -3,9 +3,9 @@ ANU - Absolutely Not UNO adalah sebuah implementasi digital dari permainan kartu
 
 ## Anggota Kelompok
 * Nikolas Tiar Banjarnahor - [25051204056]
-* Muhammad Nur Fajri - [25051204016]
-* Talitha - [25051204064]
-* Habibi - []
+* Muhammad Nur Fajri - []
+* Talitha Zahra Anabela Putri - [25051204064]
+* Habibi - [25051204058]
 
 ## Fitur Utama
 * insert here
