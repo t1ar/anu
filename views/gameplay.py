@@ -726,14 +726,15 @@ class GameplayView(arcade.View):
         # Only play if the volume is above 0 (saves processing power if muted!)
         if final_vol > 0:
             arcade.play_sound(sound, volume=final_vol)
-    
-    def music_player(self, sound, base_vol=1.0):
-        """Helper method to automatically mix BGM with the global settings"""
 
-        # Calculate the final output volume
+    def music_player(self, sound, base_vol=0.5):  # Using 0.1 so it doesn't blast your ears!
+        """Helper method to automatically mix BGM and ALWAYS return the track"""
+
         final_vol = base_vol * self.window.bgm_vol * self.window.master_vol
 
-        # Only play if the volume is above 0 (saves processing power if muted!)
-        if final_vol > 0:
-            arcade.play_sound(sound, volume=final_vol, loop=True)
-        
+        # 1. We MUST play the sound even if the volume is currently 0.
+        # If we don't, the Settings Menu has no track to turn up later!
+        player = arcade.play_sound(sound, volume=final_vol, loop=True)
+
+        # 2. We MUST return the player so self.music can hold onto it!
+        return player

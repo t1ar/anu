@@ -72,20 +72,54 @@ class SettingsView(arcade.View):
 
         if key == arcade.key.A and self.pick_sett == 0 and self.window.master_v > 0:
             self.window.master_v -= 20
-            self.window.master_vol -= 0.2
+            self.window.master_vol = self.window.master_v / 100.0  # Instantly perfect math
+            self._play_test_sfx()
+            self._update_live_music()
+
         elif key == arcade.key.A and self.pick_sett == 1 and self.window.bgm_v > 0:
             self.window.bgm_v -= 20
-            self.window.bgm_vol -= 0.1
+            self.window.bgm_vol = self.window.bgm_v / 100.0
+            self._update_live_music()
+
         elif key == arcade.key.A and self.pick_sett == 2 and self.window.sfx_v > 0:
             self.window.sfx_v -= 20
-            self.window.sfx_vol -= 0.2
+            self.window.sfx_vol = self.window.sfx_v / 100.0
+            self._play_test_sfx()
 
+            # --- D KEY (INCREASE) ---
         if key == arcade.key.D and self.pick_sett == 0 and self.window.master_v < 100:
             self.window.master_v += 20
-            self.window.master_vol += 0.2
+            self.window.master_vol = self.window.master_v / 100.0
+            self._play_test_sfx()
+            self._update_live_music()
+
         elif key == arcade.key.D and self.pick_sett == 1 and self.window.bgm_v < 100:
             self.window.bgm_v += 20
-            self.window.bgm_vol += 0.1
+            self.window.bgm_vol = self.window.bgm_v / 100.0
+            self._update_live_music()
+
         elif key == arcade.key.D and self.pick_sett == 2 and self.window.sfx_v < 100:
             self.window.sfx_v += 20
-            self.window.sfx_vol += 0.2
+            self.window.sfx_vol = self.window.sfx_v / 100.0
+            self._play_test_sfx()
+
+    def _play_test_sfx(self):
+        """Plays a quick snap so the player hears the new SFX volume"""
+        final_vol = self.window.sfx_vol * self.window.master_vol
+        if final_vol > 0:
+            test_sound = arcade.load_sound("assets/sfx/hover_deck.mp3")
+            arcade.play_sound(test_sound, volume=final_vol)
+
+    def _update_live_music(self):
+        """Hunts down the active music track and turns the volume knob in real-time"""
+        active_game = None
+        if hasattr(self.previous_view, 'game_view'):
+            active_game = self.previous_view.game_view
+
+        # Check if we found the game AND if the track actually exists now
+        if active_game and hasattr(active_game, 'music') and active_game.music:
+            # Use 0.1 here to match the base_vol in gameplay.py!
+            new_vol = 0.5 * self.window.bgm_vol * self.window.master_vol
+
+            # Instantly change the track volume
+            active_game.music.volume = new_vol
