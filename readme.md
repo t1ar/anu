@@ -48,3 +48,5 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue tortor, var
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec augue tortor, varius id pretium eget, pretium eget justo.
 
 ## Screenshots
+![Main Menu.](images/1.png)
+![Gameplay.](images/2.png)
