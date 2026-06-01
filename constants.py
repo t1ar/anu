@@ -27,3 +27,5 @@ DEAL_CARDS    = 7
 CPU_DELAY     = 1.2        # seconds before CPU plays
 
 GAME_FONT = ("DM Sans","sans-serif")
+
+DEBUG_MODE = False
