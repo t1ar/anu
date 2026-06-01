@@ -4,10 +4,15 @@ import arcade
 from constants import SCREEN_W, SCREEN_H
 from views.settings import SettingsView
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gameplay import GameplayView
+
 class PauseMenuView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
-        self.game_view = game_view
+        self.game_view: GameplayView = game_view
 
     def on_draw(self):
         self.clear()
@@ -26,7 +31,9 @@ class PauseMenuView(arcade.View):
                          arcade.color.LIGHT_GRAY, font_size=20, anchor_x="center")
         arcade.draw_text("Press 'S' for Settings", SCREEN_W / 2, SCREEN_H / 2 - 60,
                          arcade.color.LIGHT_GRAY, font_size=16, anchor_x="center")
-        arcade.draw_text("Press 'Q' to Quit to Menu", SCREEN_W / 2, SCREEN_H / 2 - 100,
+        arcade.draw_text("Press 'R' to Restart", SCREEN_W / 2, SCREEN_H / 2 - 100,
+                         arcade.color.YELLOW, font_size=16, anchor_x="center")
+        arcade.draw_text("Press 'Q' to Quit to Menu", SCREEN_W / 2, SCREEN_H / 2 - 140,
                          arcade.color.RED, font_size=16, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
@@ -40,3 +47,6 @@ class PauseMenuView(arcade.View):
             from views.main_menu import MainMenuView
             menu_view = MainMenuView()
             self.window.show_view(menu_view)
+        elif key == arcade.key.R:
+            self.window.show_view(self.game_view)
+            self.game_view._setup()

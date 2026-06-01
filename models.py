@@ -127,6 +127,17 @@ def build_deck() -> list[Card]:
     random.shuffle(deck)
     return deck
 
+def preload_card():
+    get_card_texture(None, None, face_up=False)
+    get_card_texture("wild", "wild", True)
+    get_card_texture("wild", "wild4", True)
+    for color in ["red", "yellow", "green", "blue"]:
+        for val in ["1","2","3","4","5","6","7","8","9",
+                        "skip","reverse","draw2", "wild", "wild4"]:
+            get_card_texture(color, val, True)
+    print("loaded texture")
+    
+
 
 def draw_rounded_rect(cx, cy, w, h, r, color, outline=None, outline_w=2):
     arcade.draw_rect_filled(

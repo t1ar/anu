@@ -20,4 +20,7 @@ def main():
     arcade.run()
 
 if __name__ == "__main__":
+    from models import preload_card
+    preload_card()
+
     main()

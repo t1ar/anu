@@ -65,6 +65,7 @@ class GameplayView(arcade.View):
         self.current_idx = 0
         self.direction = 1          
         self.state = STATE_DEALING
+        self.prev_state: Optional[str] = None
         self.deal_timer = 0.0
         self.cpu_timer = 0.0
         self.message = ""
@@ -87,9 +88,8 @@ class GameplayView(arcade.View):
                 self.discard.append(card)
                 break
             self.deck.insert(0, card)
-
+        
         self.state = STATE_PLAYER_TURN
-        self.play_sfx(self.sound_start)
 
         # 1. If music is already playing from a previous game, stop it first!
         if hasattr(self, 'music_player') and self.music_player is not None:
@@ -100,6 +100,7 @@ class GameplayView(arcade.View):
 
         # 3. Play it and save the player reference
         self.music_player = arcade.play_sound(self.bg_music, volume=0.1, loop=True)
+        self.play_sfx(self.sound_start)
 
 
 
@@ -511,9 +512,9 @@ class GameplayView(arcade.View):
                 self._human_play(idx)
     
     def on_key_press(self, key, modifiers):
-        if key == arcade.key.R:
-            self._setup()
-        elif key == arcade.key.ESCAPE:
+        # if key == arcade.key.R:
+        #     self._setup()
+        if key == arcade.key.ESCAPE:
             pause_view = PauseMenuView(self)
             self.window.show_view(pause_view)
 
@@ -616,7 +617,7 @@ class GameplayView(arcade.View):
             self._show_message(f"{next_p.name} draws 2!")
             
         elif card.value in ("wild", "wild4"):
-            if player.is_human:
+            if player.is_human and self.state != STATE_GAME_OVER:
                 self.state = STATE_PICK_COLOR
                 self.selected_idx = None
                 return
