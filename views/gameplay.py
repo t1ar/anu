@@ -54,7 +54,9 @@ class GameplayView(arcade.View):
 
         chosen_names = random.sample(possible_names, 3)
 
-        self.players = []
+        self.players: list[Player] = []
+        self.winners: list[Player] = []
+
         self.players.append(Player("You", is_human=True))
 
         for i in range(3):
@@ -67,7 +69,7 @@ class GameplayView(arcade.View):
         self.cpu_timer = 0.0
         self.message = ""
         self.message_timer = 0.0
-        self.winner: Optional[Player] = None
+        # self.winner: Optional[Player] = None
         self.hover_idx: Optional[int] = None
         self.selected_idx: Optional[int] = None    
         self.drew_this_turn = False                
@@ -238,7 +240,7 @@ class GameplayView(arcade.View):
     def _draw_deck_pile(self):
         cx, cy = SCREEN_W // 2 - 55, SCREEN_H // 2
         for i in range(min(5, len(self.deck))):
-            draw_card(None, cx + i * 1.5, cy + i * 1.5, face_up=False)
+            draw_card(None, cx + i * 1.5, cy + i * 1.5, face_up=False if not DEBUG_MODE else True)
         arcade.draw_text(f"DECK ({len(self.deck)})", cx + 3, cy - CARD_H // 2 - 25,
                          arcade.color.Color(200, 200, 200),
                          font_size=9,font_name=GAME_FONT, anchor_x="center")
@@ -260,7 +262,7 @@ class GameplayView(arcade.View):
 
             # Just draw the cards at their animated physical coordinates
             for card in player.hand:
-                draw_card(card, card.x, card.y, face_up=False)
+                draw_card(card, card.x, card.y, face_up=False if not DEBUG_MODE else True)
 
             # Draw the yellow turn indicator ring
             # if is_current:
@@ -271,6 +273,9 @@ class GameplayView(arcade.View):
             label = f"{player.name}  [{n}]"
             if player.hand and len(player.hand) == 1:
                 label += " UNO!"
+            elif player.won:
+                rank_str = self._get_rank_str(player)
+                label += f" WON!, at {rank_str} place"
 
             # Anchor text correctly based on screen position
             if py > 400:  # Top Bot
@@ -396,18 +401,38 @@ class GameplayView(arcade.View):
         arcade.draw_rect_filled(arcade.XYWH(SCREEN_W // 2, SCREEN_H // 2,
                                             SCREEN_W, SCREEN_H),
                                 arcade.color.Color(0, 0, 0, 200))
-        arcade.draw_text("GAME OVER",
-                         SCREEN_W // 2, SCREEN_H // 2 + 60,
-                         arcade.color.Color(255, 230, 50),
-                         font_size=36, font_name=GAME_FONT, anchor_x="center")
-        arcade.draw_text(f"{self.winner.name} wins!",
-                         SCREEN_W // 2, SCREEN_H // 2,
-                         arcade.color.Color(255, 255, 255),
-                         font_size=24, font_name=GAME_FONT, anchor_x="center")
+        
+        rank_str = self._get_rank_str(self.players[0])
+
+        arcade.draw_text("Game Over", SCREEN_W // 2, SCREEN_H // 2 + 80,
+                        arcade.color.Color(255, 230, 50),
+                        font_size=36, bold=True, anchor_x="center")
+        arcade.draw_text(f"You came in {rank_str} place!",
+                        SCREEN_W // 2, SCREEN_H // 2 + 20,
+                        arcade.color.Color(255, 255, 255),
+                        font_size=28, bold=True, anchor_x="center")
+        arcade.draw_text(f"Winner (1st: {self.winners[0].name})",
+                        SCREEN_W // 2, SCREEN_H // 2 - 25,
+                        arcade.color.Color(180, 180, 180),
+                        font_size=15, anchor_x="center")
+        
+        def _winner_color(player: Player) -> arcade.color:
+            if player.is_human:
+                return arcade.color.Color(255, 240, 80)
+            return arcade.color.Color(180, 180, 180)
+
+        if len(self.winners) > 1:
+            for i, p in enumerate(self.winners[1:], start=2):
+                arcade.draw_text(f"{i}. {p.name}",
+                        SCREEN_W // 2, SCREEN_H // 2 - 25 - ((i-1) * 22),
+                        _winner_color(p),
+                        font_size=15, anchor_x="center")
+
+        bottom_y = SCREEN_H // 2 - 25 - (len(self.winners) * 22) - 45
         arcade.draw_text("Press R to restart",
-                         SCREEN_W // 2, SCREEN_H // 2 - 50,
-                         arcade.color.Color(180, 180, 180),
-                         font_size=16, font_name=GAME_FONT, anchor_x="center")
+                        SCREEN_W // 2, bottom_y,
+                        arcade.color.Color(150, 150, 150),
+                        font_size=15, anchor_x="center")
 
     def on_mouse_motion(self, x, y, dx, dy):
         # 1. Early exit if it's not the player's turn
@@ -475,6 +500,7 @@ class GameplayView(arcade.View):
                     self.play_sfx(self.sound_play)
 
                 self._human_play(idx)
+    
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
             self._setup()
@@ -515,6 +541,11 @@ class GameplayView(arcade.View):
 
     def _cpu_play(self):
         player = self.current_player
+        # if player.won:
+        #     self._advance_turn()
+        #     self._queue_next_turn()
+        #     return
+        
         playable = player.playable_cards(self.top_card)
         if playable:
             playable.sort(key=lambda c: (0 if c.is_action else 1,
@@ -550,10 +581,12 @@ class GameplayView(arcade.View):
 
         self._show_message(f"{player.name} plays {_card_label(card.value)}")
 
-        if len(player.hand) == 0:
-            self.winner = player
-            self.state = STATE_GAME_OVER
-            return
+        if len(player.hand) == 0 and not player.won:
+            self.winners.append(player)
+            player.won = True
+
+            if player.is_human:
+                self.state = STATE_GAME_OVER
 
         if len(player.hand) == 1:
             self._show_message(f" UNO! — {player.name}")
@@ -561,18 +594,18 @@ class GameplayView(arcade.View):
         if card.value == "skip":
             self._advance_turn()
             self._show_message(f"{self.current_player.name} is skipped!")
-            self._advance_turn()
+            
         elif card.value == "reverse":
             self.direction *= -1
             self._show_message("Direction reversed!")
-            self._advance_turn()
+            
         elif card.value == "draw2":
             self._advance_turn()
             next_p = self.current_player
             self._draw_one(next_p)
             self._draw_one(next_p)
             self._show_message(f"{next_p.name} draws 2!")
-            self._advance_turn()
+            
         elif card.value in ("wild", "wild4"):
             if player.is_human:
                 self.state = STATE_PICK_COLOR
@@ -588,12 +621,8 @@ class GameplayView(arcade.View):
                     for _ in range(4):
                         self._draw_one(next_p)
                     self._show_message(f"{next_p.name} draws 4!")
-                    self._advance_turn()
-                else:
-                    self._advance_turn()
-        else:
-            self._advance_turn()
-
+        
+        self._advance_turn()
         self._queue_next_turn()
 
     def _finish_wild(self, chosen_color: str):
@@ -606,13 +635,20 @@ class GameplayView(arcade.View):
             for _ in range(4):
                 self._draw_one(next_p)
             self._show_message(f"{next_p.name} draws 4!")
-            self._advance_turn()
-        else:
-            self._advance_turn()
+        
+        self._advance_turn()
         self._queue_next_turn()
 
     def _advance_turn(self):
+        if len(self.players) - len(self.winners) == 1: #if all cpu wins but the player not yet
+            self.state = STATE_GAME_OVER
+            self.winners.append(self.players[0])
+            return
+        
         self.current_idx = (self.current_idx + self.direction) % len(self.players)
+        
+        if self.current_player.won:
+            self._advance_turn()
 
     def _queue_next_turn(self):
         if self.state in (STATE_GAME_OVER,):
@@ -656,6 +692,15 @@ class GameplayView(arcade.View):
     def _show_message(self, msg: str):
         self.message = msg
         self.message_timer = 2.0
+
+    def _get_rank_str(self, player: Player) -> str:
+        rank_str: str
+        placement = self.winners.index(player) + 1
+        if placement   == 1: rank_str = f"{placement}st"
+        elif placement == 2: rank_str = f"{placement}nd"
+        elif placement == 3: rank_str = f"{placement}rd"
+        elif placement >= 4: rank_str = f"{placement}th"
+        return rank_str
 
     def play_sfx(self, sound, base_vol=1.0):
         """Helper method to automatically mix SFX with the global settings"""
