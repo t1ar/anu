@@ -43,15 +43,68 @@ ANU - Absolutely Not UNO adalah sebuah implementasi digital dari permainan kartu
     ```
 ## Penjelasan Implementasi OOP
 ### 1. Encapsulation
-Enkapsulasi diterapkan dalam GameplayView, semua method gameplay hanya bisa diakses oleh class GameplayView.
-Player tidak mengubah jumlah dari kartu yang dimainkan secara langsung, namun sistem akan memerintahkan method untuk mengurangi atau menambah jumlah kartu dari pemain.
-### 2. Inheritence
-Penerapan inheritance ada pada setiap view. Tampilan game memakai turunan dari class view bawaan Arcade.
-### 3. Abstraction 
-Class view bawaan Arcade adalah sebuah class Abstract, hal ini membuat penerapan abstraction juga berada pada tiap view yang ada di dalam game ini.
-### 4. Polymorphism
-Beberapa method seperti on_draw dan on_key_pressed pada beberapa class memiliki perintah yang berbeda walaupun menggunakan nama yang sama. 
+Encapsulation diterapkan untuk membungkus data dan menyembunyikan detail internal suatu objek agar tidak dimodifikasi secara sembarangan dari luar.
 
+Pada project ini, enkapsulasi terlihat sangat jelas pada class Player yang mengelola ```tangan``` (kartu) pemain.
+``` python
+class Player:
+    def __init__(self, name: str, is_human: bool):
+        self.name = name
+        self.is_human = is_human
+        self.hand = [] # Daftar kartu dienkapsulasi
+
+    def remove_card(self, card):
+        if card in self.hand:
+            self.hand.remove(card)
+```
+Tujuannya adalah agar sistem game utama ```(GameplayView)``` tidak menghapus atau mengubah isi list ```hand``` secara langsung. Jika ingin membuang kartu, sistem harus meminta izin dengan memanggil method ```remove_card()```.
+### 2. Inheritence
+Inheritance diterapkan ketika class turunan mewarisi atribut atau method dari class induk.
+
+Contoh penerapan pada project ini terdapat pada bagian user interface (layar game). Class GameplayView, MainMenuView, dan SettingsView mewarisi class dasar arcade.View.
+``` python
+class GameplayView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        self._setup()
+```
+Selain itu, dengan melakukan pewarisan ini, class-class tampilan tersebut otomatis mendapatkan fungsionalitas rendering grafis dan pembacaan input (seperti klik mouse dan keyboard) bawaan dari engine Arcade tanpa perlu kita buat dari awal.
+### 3. Abstraction 
+Abstraction diterapkan dengan menyembunyikan kompleksitas logika sistem di balik sebuah fungsi (interface) yang sederhana, sehingga bagian program lain lebih mudah menggunakannya.
+
+Contoh penerapan pada project ini adalah logika aturan permainan UNO yang disembunyikan di dalam class Card melalui method can_play_on().
+``` python
+class Card:
+    def can_play_on(self, top_card) -> bool:
+        if self.is_wild:
+            return True
+        if self.color == top_card.color or self.color == top_card.chosen_color:
+            return True
+        if self.value == top_card.value:
+            return True
+        return False
+```
+Sistem utama tidak perlu tahu rumus rumit untuk mengecek kecocokan warna, angka, atau kartu wild. Sistem cukup bertanya "Apakah kartu ini bisa dimainkan?" dengan memanggil method tersebut, dan class Card akan mengembalikan jawaban True atau False.
+### 4. Polymorphism
+Polymorphism diterapkan ketika satu method yang sama dipanggil oleh sistem, namun memberikan respons atau perilaku yang berbeda tergantung pada class-nya (Banyak bentuk, satu perintah).
+
+Pada project ini, engine Arcade selalu memanggil perintah on_key_press(). Namun, class MainMenuView dan SettingsView merespons perintah yang sama tersebut dengan perilaku yang sama sekali berbeda.
+``` python
+class MainMenuView(arcade.View):
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.ENTER:
+            # Polymorphism: Merespons dengan memulai game
+            game_view = GameplayView()
+            self.window.show_view(game_view)
+
+
+class SettingsView(arcade.View):
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.ESCAPE:
+            # Polymorphism: Merespons dengan kembali ke layar sebelumnya
+            self.window.show_view(self.previous_view)
+```
+Meski nama fungsinya persis sama, MainMenuView menggunakannya untuk transisi layar permainan, sedangkan SettingsView menggunakannya untuk fungsi tombol kembali (back).
 ## Screenshots
 ![Main Menu.](images/1.png)
 ![Gameplay.](images/2.png)
