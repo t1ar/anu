@@ -362,9 +362,12 @@ class GameplayView(arcade.View):
                              SCREEN_W // 2, SCREEN_H // 2 + 160,
                              arcade.color.Color(255, 240, 100, alpha),
                              font_size=22, font_name=GAME_FONT, anchor_x="center")
-
+        
+        prompt = "Click a card to play • Click deck to draw"
+        if self.drew_this_turn:
+            prompt += " • Right-click to skip turn"
         if self.current_idx == 0 and self.state == STATE_PLAYER_TURN:
-            arcade.draw_text("Click a card to play • Click deck to draw",
+            arcade.draw_text(prompt,
                              SCREEN_W // 2, SCREEN_H // 30 + 160,
                              arcade.color.Color(150, 200, 150),
                              font_size=10, font_name=GAME_FONT, anchor_x="center")
@@ -452,6 +455,12 @@ class GameplayView(arcade.View):
             arcade.play_sound(self.sound_hover, volume=0.2)
 
     def on_mouse_press(self, x, y, button, modifiers):
+        if button == arcade.MOUSE_BUTTON_RIGHT and STATE_PLAYER_TURN and self.drew_this_turn:
+            self._advance_turn()
+            self._queue_next_turn()
+            self._show_message("You draw & pass")
+            return
+
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
 
@@ -534,7 +543,7 @@ class GameplayView(arcade.View):
         self.drew_this_turn = True
         if drawn and drawn.can_play_on(self.top_card):
             self._show_message(f"Drew {_card_label(drawn.value)} — you may play it!")
-        else:
+        elif not player.playable_cards(self.top_card):
             self._show_message("Drew a card — no play, passing")
             self._advance_turn()
             self._queue_next_turn()
@@ -640,7 +649,7 @@ class GameplayView(arcade.View):
         self._queue_next_turn()
 
     def _advance_turn(self):
-        if len(self.players) - len(self.winners) == 1: #if all cpu wins but the player not yet
+        if len(self.players) - len(self.winners) == 1 and self.state != STATE_GAME_OVER: #if all cpu wins but the player not yet
             self.state = STATE_GAME_OVER
             self.winners.append(self.players[0])
             return
